@@ -8,8 +8,7 @@ const nextConfig: NextConfig = {
   basePath,
   trailingSlash: true,
   images: { unoptimized: true },
-  cacheComponents: true,
-  partialPrefetching: true,
+  // cacheComponents / partialPrefetching are off: PPR can't run in export mode.
   turbopack: {
     rules: {
       "*.css": {
