@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { parseEmail } from "@/lib/email";
+import { parseEmail, type Email } from "@/lib/email";
+import { addToWaitlist, errorMessage, publicConfig } from "@/lib/waitlist";
 
 type State =
   | { readonly phase: "idle" }
@@ -9,21 +10,19 @@ type State =
   | { readonly phase: "done"; readonly message: string }
   | { readonly phase: "failed"; readonly message: string };
 
-const FALLBACK = "Something went wrong. Try again in a moment.";
+const JOINED = "You’re on the list.";
 
-async function submit(email: string): Promise<State> {
-  try {
-    const res = await fetch("/api/waitlist", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const body: { message?: string } = await res.json().catch(() => ({}));
-    const message = body.message ?? FALLBACK;
-    return res.ok ? { phase: "done", message } : { phase: "failed", message };
-  } catch {
-    return { phase: "failed", message: "Couldn’t reach the server. Check your connection." };
+async function submit(email: Email): Promise<State> {
+  const config = publicConfig();
+  if (!config.ok) {
+    console.error("waitlist: not configured", config.error);
+    return { phase: "failed", message: errorMessage(config.error) };
   }
+  const saved = await addToWaitlist(config.value, email);
+  if (!saved.ok) console.error("waitlist: insert failed", saved.error);
+  return saved.ok
+    ? { phase: "done", message: JOINED }
+    : { phase: "failed", message: errorMessage(saved.error) };
 }
 
 type Props = { readonly onJoined: () => void };

@@ -102,7 +102,7 @@ body {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding-block: 1.75rem;
+  padding-block: clamp(1.25rem, 3vh, 1.75rem);
 }
 
 .wordmark {
@@ -113,7 +113,7 @@ body {
 
 .hero {
   display: grid;
-  gap: clamp(2.5rem, 6vw, 4rem);
+  gap: clamp(1.5rem, 6vw, 4rem);
   align-items: center;
   padding-block: clamp(0.5rem, 4vh, 6rem) clamp(4rem, 12vh, 9rem);
   min-height: min(52rem, calc(100svh - 5rem));
@@ -132,11 +132,20 @@ body {
   max-width: 30rem;
 }
 
+/* Phones: record, headline, then the form, so the field sits above the fold.
+   The description follows the form there. */
+.hero-copy .lede {
+  order: 3;
+}
+
 @media (min-width: 900px) {
   .hero {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   }
   .hero-copy {
+    order: 0;
+  }
+  .hero-copy .lede {
     order: 0;
   }
 }
@@ -204,7 +213,8 @@ body {
 
 .record-shell {
   position: relative;
-  width: min(62vw, 34rem);
+  /* Never taller than ~40% of a short phone screen, so the form stays near the fold */
+  width: min(62vw, 34rem, 40svh);
   aspect-ratio: 1;
   border-radius: 50%;
   filter: drop-shadow(0 30px 40px rgb(0 0 0 / 0.18)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.12));
@@ -215,7 +225,10 @@ body {
   inset: 0;
   border-radius: 50%;
   cursor: grab;
-  touch-action: none;
+  /* Vertical swipes scroll the page; sideways ones reach our pointer handlers */
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
   will-change: transform;

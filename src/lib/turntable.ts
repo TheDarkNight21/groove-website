@@ -111,3 +111,22 @@ export function formatRpm(velocity: number): string {
   if (Object.is(rounded, -0) || rounded === 0) return "0.0";
   return rounded < 0 ? `−${Math.abs(rounded).toFixed(1)}` : rounded.toFixed(1);
 }
+
+/** Movement (px) a touch must make before we decide between spinning and scrolling. */
+export const TOUCH_SLOP = 10;
+
+export type TouchIntent = "pending" | "spin" | "scroll";
+
+/**
+ * A touch on the record is ambiguous until it moves past the slop: mostly sideways
+ * means spin, mostly vertical means the visitor is scrolling the page.
+ */
+export function touchIntent(dx: number, dy: number, slop: number = TOUCH_SLOP): TouchIntent {
+  if (Math.hypot(dx, dy) < slop) return "pending";
+  return Math.abs(dx) >= Math.abs(dy) ? "spin" : "scroll";
+}
+
+/** What the readout should show: the hand's speed while held, the platter's otherwise. */
+export function currentVelocity(state: Turntable, t: number): number {
+  return state.drag ? releaseVelocity(state.drag.samples, t) : state.velocity;
+}

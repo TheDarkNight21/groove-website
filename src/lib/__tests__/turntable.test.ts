@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
   TURNTABLE,
+  currentVelocity,
   formatRpm,
   grab,
   initialTurntable,
@@ -10,6 +11,7 @@ import {
   rpmToDegPerSec,
   shortestDelta,
   tick,
+  touchIntent,
 } from "../turntable";
 
 const angle = fc.double({ min: -1e4, max: 1e4, noNaN: true });
@@ -125,5 +127,39 @@ describe("formatRpm", () => {
     [-0.01, "0.0"],
   ])("%d °/s → %s", (v, out) => {
     expect(formatRpm(v)).toBe(out);
+  });
+});
+
+describe("touchIntent", () => {
+  it.each([
+    [3, 4, "pending"],
+    [12, 2, "spin"],
+    [-12, 5, "spin"],
+    [2, 15, "scroll"],
+    [4, -20, "scroll"],
+  ] as const)("dx=%d dy=%d → %s", (dx, dy, out) => {
+    expect(touchIntent(dx, dy)).toBe(out);
+  });
+
+  it("is symmetric under mirroring either axis", () => {
+    fc.assert(
+      fc.property(fc.double({ min: -100, max: 100, noNaN: true }), fc.double({ min: -100, max: 100, noNaN: true }), (dx, dy) => {
+        const i = touchIntent(dx, dy);
+        expect(touchIntent(-dx, dy)).toBe(i);
+        expect(touchIntent(dx, -dy)).toBe(i);
+      }),
+    );
+  });
+});
+
+describe("currentVelocity", () => {
+  it("shows the hand's speed while dragging and agrees with release", () => {
+    const s = [1, 2, 3, 4, 5].reduce((acc, i) => move(acc, i * 10, i / 100), grab(initialTurntable, 0, 0));
+    expect(currentVelocity(s, 0.05)).toBeCloseTo(1000);
+    expect(currentVelocity(s, 0.05)).toBe(release(s, 0.05).velocity);
+  });
+
+  it("is the platter velocity when nothing is held", () => {
+    expect(currentVelocity({ angle: 0, velocity: 123, drag: null }, 9)).toBe(123);
   });
 });

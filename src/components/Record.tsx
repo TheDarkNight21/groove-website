@@ -3,6 +3,7 @@
 import { useEffect, useRef, type PointerEvent } from "react";
 import {
   TURNTABLE,
+  currentVelocity,
   formatRpm,
   grab,
   initialTurntable,
@@ -11,6 +12,7 @@ import {
   release,
   rpmToDegPerSec,
   tick,
+  touchIntent,
   type Turntable,
 } from "@/lib/turntable";
 
@@ -31,6 +33,8 @@ export function Record({ joined }: Props) {
   const centre = useRef({ x: 0, y: 0 });
   const reduced = useRef(false);
   const target = useRef(0);
+  // A touch that hasn't yet shown whether it's a spin or a page scroll.
+  const pending = useRef<{ x: number; y: number; t: number; angle: number } | null>(null);
 
   // Motor target follows join state and the reduced-motion preference.
   useEffect(() => {
@@ -58,7 +62,7 @@ export function Record({ joined }: Props) {
       if (discRef.current) {
         discRef.current.style.transform = `rotate(${state.current.angle}deg)`;
       }
-      const text = formatRpm(state.current.velocity);
+      const text = formatRpm(currentVelocity(state.current, now / 1000));
       if (text !== shown && readoutRef.current) {
         readoutRef.current.textContent = text;
         shown = text;
@@ -75,16 +79,35 @@ export function Record({ joined }: Props) {
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     const box = e.currentTarget.getBoundingClientRect();
     centre.current = { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    const t = e.timeStamp / 1000;
+    if (e.pointerType === "touch") {
+      // Phones: wait for the first real movement. Vertical swipes belong to the page
+      // (touch-action: pan-y lets the browser scroll); sideways swipes spin the record.
+      pending.current = { x: e.clientX, y: e.clientY, t, angle: angleOf(e) };
+      return;
+    }
+    // Mouse and pen: the hand lands on the record and stops it, instantly.
     e.currentTarget.setPointerCapture(e.pointerId);
-    state.current = grab(state.current, angleOf(e), e.timeStamp / 1000);
+    state.current = grab(state.current, angleOf(e), t);
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const t = e.timeStamp / 1000;
+    const touch = pending.current;
+    if (touch) {
+      const intent = touchIntent(e.clientX - touch.x, e.clientY - touch.y);
+      if (intent === "pending") return;
+      pending.current = null;
+      if (intent === "scroll") return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      state.current = grab(state.current, touch.angle, touch.t);
+    }
     if (!state.current.drag) return;
-    state.current = move(state.current, angleOf(e), e.timeStamp / 1000);
+    state.current = move(state.current, angleOf(e), t);
   };
 
   const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    pending.current = null;
     const released = release(state.current, e.timeStamp / 1000);
     // Reduced motion: the record stays where it was put instead of coasting.
     state.current = reduced.current ? { ...released, velocity: 0 } : released;
@@ -97,7 +120,7 @@ export function Record({ joined }: Props) {
           ref={discRef}
           className="record-disc"
           role="img"
-          aria-label="A black vinyl record with the Groove label. Drag to spin it."
+          aria-label="A black vinyl record with the Groove label. Swipe or drag sideways to spin it."
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
