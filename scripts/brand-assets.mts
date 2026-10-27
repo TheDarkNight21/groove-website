@@ -50,7 +50,8 @@ const mark = (size: number): Asset => ({
   body: markSvg().replace("<svg ", `<svg width="${size}" height="${size}" `),
 });
 
-const host = new URL(SITE.url).host;
+// Printed on the card; people type the bare domain.
+const host = new URL(SITE.url).host.replace(/^www\./, "");
 
 const shareCard: Asset = {
   out: "src/app/opengraph-image.png",

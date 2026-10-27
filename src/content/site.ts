@@ -4,7 +4,7 @@
 export const SITE = {
   name: "groove",
   // The production address. Canonical URLs, share cards and the sitemap all derive from it.
-  url: "https://groovedrinks.com",
+  url: "https://www.groovedrinks.com",
   tagline: "Energy for the flow state.",
   description:
     "Groove is a premium sparkling energy drink for creators and people devoted to their craft.",
