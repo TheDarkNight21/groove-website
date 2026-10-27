@@ -4,9 +4,25 @@ import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
 // The pull quote is the founders' line from WHY[0], set on its own.
 const PULL_QUOTE = "We learned that the hard way, with our own teeth.";
 
+// Tells search engines who the site belongs to and where else the brand lives.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE.name,
+  url: SITE.url,
+  logo: new URL("/icon-512.png", SITE.url).href,
+  description: SITE.description,
+  sameAs: SITE.social.map(({ href }) => href),
+};
+
 export default function Home() {
   return (
     <main className="page">
+      <script
+        type="application/ld+json"
+        // JSON can't close the script tag once "<" is escaped.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA).replace(/</g, "\\u003c") }}
+      />
       <div className="topline">
         <span className="wordmark">{SITE.name}</span>
         <span className="eyebrow">{SITE.status}</span>

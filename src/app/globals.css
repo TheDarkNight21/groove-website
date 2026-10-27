@@ -201,6 +201,23 @@ body {
   color: var(--muted);
 }
 
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: min(40rem, calc(100svh - 6rem));
+  padding-block: 4rem;
+}
+
+.not-found-link {
+  margin-top: clamp(2rem, 5vh, 3rem);
+  text-underline-offset: 0.3em;
+}
+.not-found-link:hover {
+  text-decoration: underline;
+}
+
 /* ---------- The record ---------- */
 
 .record-unit {

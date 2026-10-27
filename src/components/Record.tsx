@@ -15,14 +15,7 @@ import {
   touchIntent,
   type Turntable,
 } from "@/lib/turntable";
-
-// Groove rings between the label and the lead-in, with gaps between "tracks".
-const TRACK_GAPS = [52, 66, 80] as const;
-const RINGS = Array.from({ length: 42 }, (_, i) => 37 + i * 1.45).filter(
-  (r) => TRACK_GAPS.every((g) => Math.abs(r - g) > 1.2),
-);
-const LABEL_RADIUS = 26;
-const LABEL_TEXT = "GROOVE · ENERGY FOR THE FLOW STATE · ";
+import { RECORD, RINGS, labelPath, labelTextLength } from "@/lib/record-art";
 
 type Props = { readonly joined: boolean };
 
@@ -128,10 +121,10 @@ export function Record({ joined }: Props) {
         >
           <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
             <defs>
-              <path id="label-path" d={`M100,100 m-${LABEL_RADIUS},0 a${LABEL_RADIUS},${LABEL_RADIUS} 0 1,1 ${LABEL_RADIUS * 2},0 a${LABEL_RADIUS},${LABEL_RADIUS} 0 1,1 -${LABEL_RADIUS * 2},0`} />
+              <path id="label-path" d={labelPath(RECORD.textRadius)} />
             </defs>
-            <circle cx="100" cy="100" r="99" fill="var(--vinyl)" />
-            {RINGS.map((r, i) => (
+            <circle cx="100" cy="100" r={RECORD.radius} fill="var(--vinyl)" />
+            {RINGS.map(({ r, opacity }) => (
               <circle
                 key={r}
                 cx="100"
@@ -139,22 +132,21 @@ export function Record({ joined }: Props) {
                 r={r}
                 fill="none"
                 stroke="#fff"
-                strokeOpacity={i % 3 === 0 ? 0.09 : 0.045}
+                strokeOpacity={opacity}
                 strokeWidth="0.35"
               />
             ))}
-            <circle cx="100" cy="100" r="98.2" fill="none" stroke="#fff" strokeOpacity="0.14" strokeWidth="0.6" />
-            <circle cx="100" cy="100" r="34" fill="var(--background)" />
+            <circle cx="100" cy="100" r={RECORD.rimRadius} fill="none" stroke="#fff" strokeOpacity="0.14" strokeWidth="0.6" />
+            <circle cx="100" cy="100" r={RECORD.labelRadius} fill="var(--background)" />
             <text className="record-label-text" fill="var(--foreground)">
-              {/* Stretch the text to exactly one lap so the phrase meets itself with no seam */}
-              <textPath href="#label-path" textLength={2 * Math.PI * LABEL_RADIUS - 0.5} lengthAdjust="spacing">
-                {LABEL_TEXT}
+              <textPath href="#label-path" textLength={labelTextLength(RECORD.textRadius)} lengthAdjust="spacing">
+                {RECORD.labelText}
               </textPath>
             </text>
             <text x="100" y="91" textAnchor="middle" className="record-label-name" fill="var(--foreground)">
-              groove
+              {RECORD.name}
             </text>
-            <circle cx="100" cy="100" r="2.4" fill="var(--vinyl)" />
+            <circle cx="100" cy="100" r={RECORD.spindleRadius} fill="var(--vinyl)" />
           </svg>
         </div>
         {/* Light stays put while the record turns: that's what makes the rotation read. */}
