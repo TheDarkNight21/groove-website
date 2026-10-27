@@ -1,6 +1,6 @@
 import type { Email, Result } from "./email";
 
-// The site is a static export (GitHub Pages), so the browser writes to Supabase
+// The site is a static export (no server), so the browser writes to Supabase
 // directly with the public key. It can only call join_waitlist (see supabase/migrations),
 // which answers identically for new and existing addresses; the table itself is closed.
 
