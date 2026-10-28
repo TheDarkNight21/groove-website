@@ -38,17 +38,20 @@ set search_path = ''
 as $$
 declare
   -- More than this many inquiries in an hour means a script, not brands; stop
-  -- paying Resend's daily quota for it. Rows are still saved.
+  -- paying Resend's daily quota for it. Rows are still saved, and the one row that
+  -- crosses the line sends a single "paused" mail so the silence is never invisible.
   alerts_per_hour constant integer := 20;
   recent integer;
   api_key text;
   recipient text;
+  stamp text;
+  mail jsonb;
 begin
   begin
     select count(*) into recent
       from public.lab_inquiries
       where created_at > now() - interval '1 hour';
-    if recent > alerts_per_hour then
+    if recent > alerts_per_hour + 1 then
       raise warning 'lab_inquiries: % inquiries in the last hour, alert skipped', recent;
       return new;
     end if;
@@ -60,19 +63,33 @@ begin
       return new;
     end if;
 
+    stamp := to_char(new.created_at at time zone 'UTC', 'YYYY-MM-DD HH24:MI "UTC"');
+    if recent > alerts_per_hour then
+      mail := jsonb_build_object(
+        'from', 'Groove Lab <onboarding@resend.dev>',
+        'to', jsonb_build_array(recipient),
+        'subject', 'Lab inquiry alerts paused',
+        'text', recent || ' inquiries in the last hour, so alerts stop until it quiets down. '
+          || 'Every row is still in public.lab_inquiries; read it there.' || E'\n\n' || stamp
+      );
+    else
+      -- Email is safe in a subject: the column's check constraint allows no whitespace.
+      mail := jsonb_build_object(
+        'from', 'Groove Lab <onboarding@resend.dev>',
+        'to', jsonb_build_array(recipient),
+        'reply_to', new.email,
+        'subject', 'Lab inquiry from ' || new.email,
+        'text', new.message || E'\n\n— ' || new.email || ' · ' || stamp
+      );
+    end if;
+
     perform net.http_post(
       url := 'https://api.resend.com/emails',
       headers := jsonb_build_object(
         'Authorization', 'Bearer ' || api_key,
         'Content-Type', 'application/json'
       ),
-      body := jsonb_build_object(
-        'from', 'Groove Lab <onboarding@resend.dev>',
-        'to', jsonb_build_array(recipient),
-        'reply_to', new.email,
-        'subject', 'Lab inquiry from ' || new.email,
-        'text', new.message || E'\n\n— ' || new.email || ' · ' || to_char(new.created_at at time zone 'UTC', 'YYYY-MM-DD HH24:MI "UTC"')
-      ),
+      body := mail,
       timeout_milliseconds := 5000
     );
   exception when others then
