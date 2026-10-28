@@ -408,3 +408,71 @@ body {
     display: none;
   }
 }
+
+/* ---------- The Lab ---------- */
+
+.lab-hero {
+  padding-block: clamp(1rem, 6vh, 5rem) clamp(3rem, 8vh, 6rem);
+}
+
+.lab-link {
+  display: inline-block;
+  margin-top: 2rem;
+  text-underline-offset: 0.3em;
+}
+.lab-link:hover {
+  text-decoration: underline;
+}
+
+.inquiry-unit {
+  margin-top: 2.5rem;
+  max-width: 36rem;
+}
+
+/* The waitlist's pill, opened up to hold a note: fields stack with a hairline between. */
+.inquiry-field {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--foreground);
+  border-radius: 1.5rem;
+  padding: 0.3rem;
+  transition: box-shadow 200ms var(--ease-settle);
+}
+.inquiry-field:focus-within {
+  box-shadow: 0 0 0 4px rgb(0 0 0 / 0.08);
+}
+.inquiry-field:has([aria-invalid="true"]) {
+  border-style: dashed;
+}
+
+.inquiry-input,
+.inquiry-textarea {
+  width: 100%;
+  padding: 0.75rem 1.1rem;
+  background: transparent;
+  outline: none;
+  font-size: 1rem; /* 16px keeps iOS from zooming on focus */
+}
+.inquiry-input::placeholder,
+.inquiry-textarea::placeholder {
+  color: rgb(0 0 0 / 0.35);
+}
+.inquiry-textarea {
+  min-height: 9rem;
+  resize: vertical;
+  border-top: 1px solid var(--hairline);
+}
+
+.inquiry-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.3rem;
+}
+
+.proof {
+  margin-top: 1.25rem;
+  padding-left: 1.1rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  max-width: 40ch;
+}

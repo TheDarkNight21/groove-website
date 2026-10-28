@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Hero } from "@/components/Hero";
+import { LAB } from "@/content/lab";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
 
 // The pull quote is the founders' line from WHY[0], set on its own.
@@ -63,6 +65,19 @@ export default function Home() {
         <p className="statement">{AUDIENCE}</p>
       </section>
 
+      <section aria-labelledby="lab" className="block">
+        <h2 id="lab" className="eyebrow">
+          {LAB.name}
+        </h2>
+        <p className="statement">{LAB.teaser.statement}</p>
+        <div className="prose">
+          <p>{LAB.teaser.body}</p>
+        </div>
+        <Link href={LAB.path} className="lab-link">
+          {LAB.teaser.link} →
+        </Link>
+      </section>
+
       <footer className="footer">
         {SITE.social.map(({ label, handle, href }) => (
           <a key={href} href={href} target="_blank" rel="noopener noreferrer" className="social">
@@ -70,6 +85,10 @@ export default function Home() {
             <span>{handle} →</span>
           </a>
         ))}
+        <Link href={LAB.path} className="social">
+          <span className="eyebrow">For brands</span>
+          <span>{LAB.name} →</span>
+        </Link>
       </footer>
     </main>
   );
