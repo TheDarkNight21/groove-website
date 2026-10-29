@@ -126,16 +126,27 @@ body {
   align-items: flex-start;
 }
 
-.hero-copy form,
-.hero-copy .waitlist-done {
+.hero-copy .preorder {
   margin-top: clamp(1.5rem, 4vh, 2.5rem);
   max-width: 30rem;
 }
 
-/* Phones: record, headline, then the form, so the field sits above the fold.
-   The description follows the form there. */
+.hero-copy form,
+.hero-copy .waitlist-link,
+.hero-copy .waitlist-done {
+  margin-top: 1.5rem;
+  max-width: 30rem;
+}
+
+/* Phones: record, headline, then the pre-order button, so it sits above the fold.
+   The description follows it, and the waitlist link comes last. */
 .hero-copy .lede {
   order: 3;
+}
+.hero-copy form,
+.hero-copy .waitlist-link,
+.hero-copy .waitlist-done {
+  order: 4;
 }
 
 @media (min-width: 900px) {
@@ -145,7 +156,10 @@ body {
   .hero-copy {
     order: 0;
   }
-  .hero-copy .lede {
+  .hero-copy .lede,
+  .hero-copy form,
+  .hero-copy .waitlist-link,
+  .hero-copy .waitlist-done {
     order: 0;
   }
 }
@@ -475,4 +489,62 @@ body {
   font-size: 0.8125rem;
   color: var(--muted);
   max-width: 40ch;
+}
+
+/* ---------- Pre-order ---------- */
+
+.preorder {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* The same black pill as the waitlist button, standing on its own. */
+.preorder-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  transition: transform 160ms var(--ease-settle), opacity 160ms var(--ease-settle);
+}
+.preorder-button:active {
+  transform: scale(0.96);
+  transition-duration: 80ms;
+}
+.preorder-button:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 3px;
+}
+@media (min-width: 900px) {
+  .preorder-button {
+    width: auto;
+    min-width: 14rem;
+  }
+}
+
+.preorder-terms {
+  margin-top: 0.9rem;
+  max-width: 34ch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: rgb(0 0 0 / 0.55);
+}
+
+.waitlist-link {
+  font-size: 0.875rem;
+  text-underline-offset: 0.3em;
+  cursor: pointer;
+}
+.waitlist-link:hover,
+.waitlist-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
 }
