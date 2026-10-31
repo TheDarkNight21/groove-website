@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
-// Static export, served by Vercel at the domain root.
+// Served by Vercel. Pages still prerender as static HTML; the route handlers under
+// app/api (checkout, the Stripe webhook, the admin) run as functions.
 const nextConfig: NextConfig = {
-  output: "export",
   trailingSlash: true,
   images: { unoptimized: true },
-  // cacheComponents / partialPrefetching are off: PPR can't run in export mode.
   turbopack: {
     rules: {
       "*.css": {

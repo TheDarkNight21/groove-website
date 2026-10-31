@@ -1,5 +1,6 @@
+import { CATALOG } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
-import { formatUsd, packPriceCents, type CheckoutUrl } from "@/lib/preorder";
+import { formatUsd, packPriceCents } from "@/lib/preorder";
 
 const perCanCents = PREORDER.usdPerCan * 100;
 export const PACK_PRICE_CENTS = packPriceCents(PREORDER.cansPerPack, perCanCents);
@@ -13,16 +14,32 @@ export const TERMS = [
   PREORDER.region,
 ].join(" ");
 
-type Props = { readonly checkoutUrl: CheckoutUrl };
-
-// A plain link: Stripe hosts the checkout, so nothing here runs in the browser.
-export function PreorderCta({ checkoutUrl }: Props) {
+// A plain form: the server opens a Stripe Checkout Session and redirects there, so
+// it works without JavaScript. A flavor choice appears only once there is one to make.
+export function PreorderCta() {
+  const [only] = CATALOG;
   return (
-    <div className="preorder">
-      <a href={checkoutUrl} className="preorder-button">
+    <form method="post" action="/api/checkout/" className="preorder">
+      {CATALOG.length > 1 ? (
+        <>
+          <label htmlFor="preorder-sku" className="sr-only">
+            Flavor
+          </label>
+          <select id="preorder-sku" name="sku" className="preorder-flavor" defaultValue={only.sku}>
+            {CATALOG.map((p) => (
+              <option key={p.sku} value={p.sku}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </>
+      ) : (
+        <input type="hidden" name="sku" value={only.sku} />
+      )}
+      <button type="submit" className="preorder-button">
         {PREORDER.button} · {formatUsd(PACK_PRICE_CENTS)}
-      </a>
+      </button>
       <p className="preorder-terms">{TERMS}</p>
-    </div>
+    </form>
   );
 }

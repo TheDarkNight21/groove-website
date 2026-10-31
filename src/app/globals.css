@@ -131,7 +131,7 @@ body {
   max-width: 30rem;
 }
 
-.hero-copy form,
+.hero-copy form:not(.preorder),
 .hero-copy .waitlist-link,
 .hero-copy .waitlist-done {
   margin-top: 1.5rem;
@@ -143,7 +143,7 @@ body {
 .hero-copy .lede {
   order: 3;
 }
-.hero-copy form,
+.hero-copy form:not(.preorder),
 .hero-copy .waitlist-link,
 .hero-copy .waitlist-done {
   order: 4;
@@ -157,7 +157,7 @@ body {
     order: 0;
   }
   .hero-copy .lede,
-  .hero-copy form,
+  .hero-copy form:not(.preorder),
   .hero-copy .waitlist-link,
   .hero-copy .waitlist-done {
     order: 0;
@@ -547,4 +547,206 @@ body {
 .waitlist-link:focus-visible {
   text-decoration: underline;
   outline: none;
+}
+
+/* The flavor choice, once there's more than one: a hairline field above the button. */
+.preorder-flavor {
+  width: 100%;
+  margin-bottom: 0.6rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  background: var(--background);
+  font-size: 1rem;
+}
+
+/* ---------- Admin: a working tool, same type and ink as the site ---------- */
+
+.admin-signin {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 30rem;
+  padding-block: clamp(3rem, 12vh, 8rem);
+}
+
+.admin-head {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: clamp(2rem, 6vh, 4rem) 1rem;
+}
+
+.admin-block {
+  display: grid;
+  gap: 1rem;
+  padding-block: 2rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.admin-steps {
+  display: grid;
+  gap: 1.25rem;
+  list-style: decimal inside;
+}
+.admin-steps > li::marker {
+  color: var(--muted);
+}
+
+.admin-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-settle), opacity 160ms var(--ease-settle);
+}
+.admin-button:active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: 80ms;
+}
+.admin-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.admin-button:focus-visible,
+.admin-link:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 3px;
+}
+.admin-button-quiet {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.admin-link {
+  cursor: pointer;
+  text-underline-offset: 0.3em;
+}
+.admin-link:hover {
+  text-decoration: underline;
+}
+
+.admin-input,
+.admin-file {
+  min-width: 0;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--hairline);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+}
+.admin-file {
+  border-style: dashed;
+}
+
+.admin-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.admin-row > .admin-sub {
+  display: inline;
+}
+
+.admin-note {
+  font-size: 0.875rem;
+  animation: settle-in 500ms var(--ease-settle) both;
+}
+.admin-problem {
+  font-size: 0.875rem;
+  border-left: 2px solid var(--foreground);
+  padding-left: 0.75rem;
+}
+.admin-muted {
+  color: var(--muted);
+}
+
+.admin-filter {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.8125rem;
+}
+.admin-filter a {
+  color: var(--muted);
+  text-underline-offset: 0.35em;
+}
+.admin-filter a[aria-current="page"] {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.admin-table th {
+  text-align: left;
+  font-weight: 400;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.admin-table th,
+.admin-table td {
+  padding: 0.7rem 0.9rem 0.7rem 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+.admin-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-actions summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.admin-actions[open] summary {
+  color: var(--foreground);
+}
+.admin-actions form {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  min-width: 13rem;
+}
+
+.admin-import {
+  display: grid;
+  gap: 1.25rem;
+}
+.admin-group {
+  display: grid;
+  gap: 0.6rem;
+}
+.admin-group legend {
+  margin-bottom: 0.5rem;
+}
+.admin-match {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  font-size: 0.875rem;
+}
+.admin-match input {
+  accent-color: var(--foreground);
+}
+.admin-outcomes {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.875rem;
 }

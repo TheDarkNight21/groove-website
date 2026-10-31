@@ -4,7 +4,6 @@ import { PACK_PRICE_CENTS, TERMS } from "@/components/PreorderCta";
 import { LAB } from "@/content/lab";
 import { PREORDER } from "@/content/preorder";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
-import { parseCheckoutUrl } from "@/lib/preorder";
 
 // The pull quote is the founders' line from WHY[0], set on its own.
 const PULL_QUOTE = "We learned that the hard way, with our own teeth.";
@@ -20,20 +19,6 @@ const STRUCTURED_DATA = {
   sameAs: SITE.social.map(({ href }) => href),
 };
 
-// The checkout is a Stripe Payment Link, public by design. Read once at build time;
-// a missing or foreign link fails the build rather than shipping a dead button.
-function checkoutUrl() {
-  const parsed = parseCheckoutUrl(process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK);
-  if (parsed.ok) return parsed.value;
-  throw new Error(
-    parsed.error === "missing"
-      ? "NEXT_PUBLIC_STRIPE_PAYMENT_LINK is not set; the pre-order button has nowhere to go."
-      : "NEXT_PUBLIC_STRIPE_PAYMENT_LINK must be an https://buy.stripe.com/… link.",
-  );
-}
-
-const CHECKOUT_URL = checkoutUrl();
-
 // What's for sale, for search engines: the pack, its price, and that it's a pre-order.
 const PRODUCT_DATA = {
   "@context": "https://schema.org",
@@ -44,7 +29,7 @@ const PRODUCT_DATA = {
   url: SITE.url,
   offers: {
     "@type": "Offer",
-    url: CHECKOUT_URL,
+    url: SITE.url,
     priceCurrency: "USD",
     price: (PACK_PRICE_CENTS / 100).toFixed(2),
     availability: "https://schema.org/PreOrder",
@@ -66,7 +51,7 @@ export default function Home() {
         <span className="eyebrow">{SITE.status}</span>
       </div>
 
-      <Hero checkoutUrl={CHECKOUT_URL} />
+      <Hero />
 
       <section aria-labelledby="why" className="block">
         <h2 id="why" className="eyebrow">

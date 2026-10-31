@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { formatUsd, packPriceCents, parseCheckoutUrl } from "../preorder";
+import { formatUsd, packPriceCents } from "../preorder";
 
 describe("packPriceCents", () => {
   it("multiplies cans by the per-can price", () => {
@@ -27,31 +27,5 @@ describe("formatUsd", () => {
         expect(Number(text.slice(1).replace(/,/g, ""))).toBeCloseTo((cans * perCan) / 100, 2);
       }),
     );
-  });
-});
-
-describe("parseCheckoutUrl", () => {
-  it.each([
-    "https://buy.stripe.com/abc123",
-    "https://buy.stripe.com/test_abc123",
-    "  https://buy.stripe.com/abc123\n",
-  ])("accepts %j", (raw) => {
-    const parsed = parseCheckoutUrl(raw);
-    expect(parsed.ok).toBe(true);
-    if (parsed.ok) expect(parsed.value).toBe(raw.trim());
-  });
-
-  it.each([
-    ["", "missing"],
-    ["   ", "missing"],
-    [undefined, "missing"],
-    ["http://buy.stripe.com/abc", "not-stripe"],
-    ["https://buy.stripe.com.evil.com/abc", "not-stripe"],
-    ["https://stripe.com/abc", "not-stripe"],
-    ["https://buy.stripe.com", "not-stripe"],
-    ["https://buy.stripe.com/", "not-stripe"],
-    ["not a url", "not-stripe"],
-  ] as const)("rejects %j as %s", (raw, error) => {
-    expect(parseCheckoutUrl(raw)).toEqual({ ok: false, error });
   });
 });

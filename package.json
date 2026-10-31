@@ -8,13 +8,16 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "brand-assets": "node scripts/brand-assets.mts"
+    "brand-assets": "node scripts/brand-assets.mts",
+    "stripe-catalog": "node scripts/stripe-catalog.mts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "next": "16.4.3",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "read-excel-file": "^9.3.14",
+    "stripe": "^23.1.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
