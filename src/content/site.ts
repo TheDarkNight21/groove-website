@@ -51,4 +51,4 @@ export const INGREDIENTS = [
 ] as const;
 
 export const AUDIENCE =
-  "Groove is made for filmmakers, designers, builders, and anyone who loses track of time doing what they love.";
+  "Groove is made for coders, filmmakers, designers, builders, and anyone who loses track of time doing what they love.";
