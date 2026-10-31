@@ -24,7 +24,12 @@ for (const p of CATALOG) {
     console.log(`${p.sku}: ${existing.data[0].id} already has lookup key ${p.lookupKey}`);
     continue;
   }
-  const product = await stripe.products.create({ name: p.name, tax_code: TAX_CODE, metadata: { sku: p.sku, weight_oz: String(p.weightOz) } });
+  const product = await stripe.products.create({
+    name: `${p.name} · ${PREORDER.cansPerPack}-pack`,
+    description: p.flavor,
+    tax_code: TAX_CODE,
+    metadata: { sku: p.sku, weight_oz: String(p.weightOz) },
+  });
   const price = await stripe.prices.create({
     product: product.id,
     currency: "usd",

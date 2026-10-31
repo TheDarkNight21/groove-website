@@ -163,7 +163,7 @@ export function describeOrderError(e: OrderError): string {
   }
 }
 
-// "2x groove-12pk, 1x groove-12pk-mango": what goes in the packing-slip column.
+// "2x miami-12pk, 1x boston-12pk": what goes in the packing-slip column.
 // Plain ASCII, since it ends up on a printed label.
 export const itemsSummary = (items: readonly LineItem[]): string =>
   items.map(({ sku, qty }) => `${qty}x ${sku}`).join(", ");

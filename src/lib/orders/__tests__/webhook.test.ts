@@ -34,7 +34,7 @@ const sign = (payload: string, secret = SECRET) => stripe.webhooks.generateTestH
 
 const deps = (store = memoryStore()): WebhookDeps & { store: ReturnType<typeof memoryStore> } => ({
   verify: verifier(stripe, SECRET),
-  lineItems: async () => ({ ok: true, value: [{ lookupKey: "groove-12pk", quantity: 2 }] }),
+  lineItems: async () => ({ ok: true, value: [{ lookupKey: CATALOG[0].lookupKey, quantity: 2 }] }),
   store,
   catalog: CATALOG,
 });
@@ -52,8 +52,8 @@ describe("webhook signature", () => {
       customerName: "Ada Lovelace",
       email: "ada@example.com",
       zip: "02134",
-      lineItems: [{ sku: "groove-12pk", qty: 2 }],
-      weightOz: 340,
+      lineItems: [{ sku: CATALOG[0].sku, qty: 2 }],
+      weightOz: CATALOG[0].weightOz * 2,
       amountPaidCents: 7200,
       status: "unshipped",
       trackingNumber: null,

@@ -750,3 +750,20 @@ body {
   gap: 0.3rem;
   font-size: 0.875rem;
 }
+
+/* The flavor on sale, named above the button when it's the only one. */
+.preorder-flavor-name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+.preorder-flavor-name > span {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

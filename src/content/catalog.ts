@@ -1,6 +1,7 @@
-import { PREORDER } from "./preorder.ts";
-
-// What can be bought, one entry per flavor. The Stripe price for each entry is found
+// What can be bought, one entry per flavor. Each flavor is a city's groove.
+// Selling now: Miami. Next, once each recipe is set: Boston (blueberry) and
+// Detroit (apple cider); each is one entry here plus `npm run stripe-catalog`.
+// The Stripe price for each entry is found
 // by its lookup key, which is the same string in test and live mode, so no price id
 // lives in the repo or in env. scripts/stripe-catalog.mts creates the prices.
 //
@@ -11,15 +12,18 @@ import { PREORDER } from "./preorder.ts";
 export type Product = {
   readonly sku: string;
   readonly name: string;
+  // What it tastes like, as printed under the name.
+  readonly flavor: string;
   readonly lookupKey: string;
   readonly weightOz: number;
 };
 
 export const CATALOG: readonly Product[] = [
   {
-    sku: "groove-12pk",
-    name: PREORDER.name,
-    lookupKey: "groove-12pk",
+    sku: "miami-12pk",
+    name: "The Miami Groove",
+    flavor: "Peach pineapple",
+    lookupKey: "miami-groove-12pk",
     weightOz: 170,
   },
 ];

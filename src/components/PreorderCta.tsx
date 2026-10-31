@@ -28,13 +28,19 @@ export function PreorderCta() {
           <select id="preorder-sku" name="sku" className="preorder-flavor" defaultValue={only.sku}>
             {CATALOG.map((p) => (
               <option key={p.sku} value={p.sku}>
-                {p.name}
+                {p.name} · {p.flavor}
               </option>
             ))}
           </select>
         </>
       ) : (
-        <input type="hidden" name="sku" value={only.sku} />
+        <>
+          <input type="hidden" name="sku" value={only.sku} />
+          <p className="preorder-flavor-name">
+            {only.name}
+            <span>{only.flavor}</span>
+          </p>
+        </>
       )}
       <button type="submit" className="preorder-button">
         {PREORDER.button} · {formatUsd(PACK_PRICE_CENTS)}
