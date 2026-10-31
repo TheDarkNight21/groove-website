@@ -1,4 +1,5 @@
 import { parseShipRequests, shipAll } from "@/lib/orders/fulfill";
+import { storeErrorSummary } from "@/lib/orders/store";
 import { adminStore, isAdmin, mailer, missingEnvResponse, unauthorized } from "@/lib/orders/server";
 
 // Step two: only the rows confirmed in the preview. Each order is re-checked as it's
@@ -14,6 +15,14 @@ export async function POST(request: Request) {
   if (!reqs.ok) return Response.json({ error: reqs.error }, { status: 400 });
 
   const outcomes = await shipAll(reqs.value, { store: s.value.store, ...m.value, now: () => new Date() });
-  outcomes.filter((o) => o.kind !== "shipped").forEach((o) => console.error("tracking apply:", JSON.stringify(o)));
-  return Response.json({ outcomes });
+  outcomes.forEach((o) => {
+    if (o.kind === "store-failed") console.error(`tracking apply: #${o.orderId} store ${storeErrorSummary(o.error)}`);
+    if (o.kind === "email-failed") console.error(`tracking apply: #${o.orderId} email ${o.error.kind === "upstream" ? o.error.status : o.error.kind}`);
+    if (o.kind === "not-unshipped") console.error(`tracking apply: #${o.orderId} no longer unshipped`);
+  });
+  return Response.json({
+    outcomes: outcomes.map((o) =>
+      o.kind === "store-failed" ? { ...o, error: { kind: o.error.kind } } : o.kind === "email-failed" ? { ...o, error: { kind: o.error.kind } } : o,
+    ),
+  });
 }

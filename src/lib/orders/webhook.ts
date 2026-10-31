@@ -1,7 +1,7 @@
 import type { Product } from "@/content/catalog";
 import type { Result } from "../email";
 import { describeOrderError, orderFromSession, type SessionInput, type SessionLineItem } from "./order";
-import type { OrderStore, StoreError } from "./store";
+import { storeErrorSummary, type OrderStore, type StoreError } from "./store";
 
 // What the webhook needs from Stripe, as capabilities. The real ones wrap the SDK
 // (see stripe.ts); tests pass the SDK's own signer with an in-memory store.
@@ -64,3 +64,8 @@ export async function handleWebhook(
       : { kind: "duplicate", sessionId: session.id },
   };
 }
+
+// One log line per failure with no customer data: Stripe's own messages and our
+// order errors name fields, never their values; store errors drop the body.
+export const webhookErrorSummary = (e: WebhookError): string =>
+  e.kind === "store" ? `store: ${storeErrorSummary(e.error)}` : `${e.kind}: ${e.detail}`;

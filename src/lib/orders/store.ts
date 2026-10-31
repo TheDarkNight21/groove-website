@@ -21,6 +21,11 @@ export type OrderStore = {
   readonly markEmailSent: (id: number, at: string) => Promise<Result<null, StoreError>>;
 };
 
+// For logs: an upstream body can echo the failing row (names, addresses, emails),
+// so only the kind and status ever leave this module in a log line.
+export const storeErrorSummary = (e: StoreError): string =>
+  e.kind === "upstream" ? `upstream ${e.status}` : e.kind === "bad-row" ? `bad-row ${e.detail}` : e.kind;
+
 // ---- Row mapping (pure) ----
 
 type Row = {

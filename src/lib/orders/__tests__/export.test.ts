@@ -51,6 +51,17 @@ describe("unshipped CSV", () => {
     expect(parseCsv(csv).slice(1).map((r) => r[0])).toEqual(["1"]);
   });
 
+  it("neutralizes customer text that a spreadsheet would run as a formula", () => {
+    const evil = anOrder({ customerName: '=HYPERLINK("http://x","y")', line1: "@SUM(1)", city: "-1+2", company: "+cmd" });
+    const row = parseCsv(unshippedCsv([evil]))[1];
+    expect([row[1], row[3], row[5], row[2]]).toEqual([' =HYPERLINK("http://x","y")', " @SUM(1)", " -1+2", " +cmd"]);
+  });
+
+  it("keeps a phone's + but neutralizes a phone that isn't one", () => {
+    expect(parseCsv(unshippedCsv([anOrder({ phone: "+1 (555) 555-0100" })]))[1][9]).toBe("+1 (555) 555-0100");
+    expect(parseCsv(unshippedCsv([anOrder({ phone: "+cmd|calc" })]))[1][9]).toBe(" +cmd|calc");
+  });
+
   it("uses CRLF line endings and ends with one", () => {
     const csv = unshippedCsv([anOrder()]);
     expect(csv.split("\r\n")).toHaveLength(3);

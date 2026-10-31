@@ -2,7 +2,7 @@ import { CATALOG } from "@/content/catalog";
 import { env, missingEnvResponse } from "@/lib/orders/server";
 import { supabaseOrderStore } from "@/lib/orders/store";
 import { lineItemsOf, stripeClient, verifier } from "@/lib/orders/stripe";
-import { handleWebhook, webhookStatus } from "@/lib/orders/webhook";
+import { handleWebhook, webhookErrorSummary, webhookStatus } from "@/lib/orders/webhook";
 
 // Stripe → orders. Point the Stripe endpoint at /api/stripe/webhook/ (trailing slash:
 // the site redirects without it, and Stripe does not follow redirects).
@@ -21,6 +21,6 @@ export async function POST(request: Request) {
   });
 
   if (result.ok) console.info("webhook:", result.value.kind, "reason" in result.value ? result.value.reason : result.value.sessionId);
-  else console.error("webhook failed:", JSON.stringify(result.error));
+  else console.error("webhook failed:", webhookErrorSummary(result.error));
   return Response.json(result.ok ? result.value : { error: result.error.kind }, { status: webhookStatus(result) });
 }

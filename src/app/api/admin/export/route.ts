@@ -1,4 +1,5 @@
 import { exportFilename, unshippedCsv } from "@/lib/orders/export";
+import { storeErrorSummary } from "@/lib/orders/store";
 import { adminStore, isAdmin, missingEnvResponse, unauthorized } from "@/lib/orders/server";
 
 // "Download unshipped orders": the CSV Pirate Ship imports.
@@ -9,7 +10,7 @@ export async function GET() {
 
   const orders = await s.value.store.list({ livemode: s.value.livemode, status: "unshipped" });
   if (!orders.ok) {
-    console.error("export: store failed", JSON.stringify(orders.error));
+    console.error("export: store failed", storeErrorSummary(orders.error));
     return new Response("Couldn’t read orders.", { status: 502 });
   }
   return new Response(unshippedCsv([...orders.value].reverse()), {

@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "@/content/catalog";
 import { verifier } from "../stripe";
-import { handleWebhook, webhookStatus, type WebhookDeps } from "../webhook";
+import { handleWebhook, webhookErrorSummary, webhookStatus, type WebhookDeps } from "../webhook";
 import { memoryStore } from "./memory-store";
 
 // The real SDK signs and verifies; only the network-facing capabilities are in memory.
@@ -152,5 +152,13 @@ describe("webhook routing", () => {
     const body = eventBody("checkout.session.completed", session({ collected_information: { shipping_details: null } }));
     const r = await handleWebhook(body, sign(body), deps());
     expect(!r.ok && r.error.kind === "bad-order" && r.error.detail).toContain("shipping name");
+  });
+});
+
+describe("webhook logging", () => {
+  it("never puts an upstream body (which can echo the customer's row) in the log line", () => {
+    const line = webhookErrorSummary({ kind: "store", error: { kind: "upstream", status: 400, body: "Failing row contains (Ada Lovelace, ada@example.com)" } });
+    expect(line).toBe("store: upstream 400");
+    expect(line).not.toContain("Ada");
   });
 });
