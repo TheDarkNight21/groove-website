@@ -1,13 +1,16 @@
 // Renders every icon and the share card from the record art in src/lib/record-art.ts.
 // Run after changing the record or the homepage copy, then commit the outputs:
 //   npm run brand-assets
-// Needs Google Chrome (set CHROME_PATH if it isn't in /Applications).
+// Needs Google Chrome (set CHROME_PATH if it isn't in /Applications), and the product
+// photos from `npm run product-shots`, since the share card shows the box.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { CATALOG } from "../src/content/catalog.ts";
+import { PREORDER } from "../src/content/preorder.ts";
 import { SITE } from "../src/content/site.ts";
 import { encodeIco } from "../src/lib/ico.ts";
 import { BRAND_COLORS, markSvg, recordSvg } from "../src/lib/record-art.ts";
@@ -52,6 +55,10 @@ const mark = (size: number): Asset => ({
 
 // Printed on the card; people type the bare domain.
 const host = new URL(SITE.url).host.replace(/^www\./, "");
+// The card shows what's for sale: the hero photo from npm run product-shots (run it first).
+const HERO = CATALOG[0].images[0];
+const heroFile = resolve(`public${HERO.jpg}`);
+const packUsd = `$${PREORDER.cansPerPack * PREORDER.usdPerCan}`;
 
 const shareCard: Asset = {
   out: "src/app/opengraph-image.png",
@@ -64,9 +71,9 @@ const shareCard: Asset = {
         <div style="font-size:68px;line-height:1.02;letter-spacing:-0.055em;font-weight:500">${SITE.tagline}</div>
         <div style="margin-top:24px;font-size:22px;line-height:1.5;color:rgb(0 0 0/.55);max-width:30ch">${SITE.description}</div>
       </div>
-      <div style="font-size:16px;letter-spacing:0.08em;text-transform:uppercase;color:rgb(0 0 0/.55)">${host} · ${SITE.status}</div>
+      <div style="font-size:16px;letter-spacing:0.08em;line-height:1.6;text-transform:uppercase;color:rgb(0 0 0/.55)">${host}<br>Pre-order ${packUsd} · Ships ${PREORDER.shipWindow.replace(/^by (\w{3})\w*/, "$1")}</div>
     </div>
-    ${recordSvg().replace("<svg ", `<svg width="470" height="470" `)}
+    <img src="${pathToFileURL(heroFile)}" style="display:block;width:470px;height:550px;object-fit:cover;border-radius:28px">
   </div>`,
 };
 
@@ -82,7 +89,7 @@ const ASSETS: readonly Asset[] = [
   shareCard,
 ];
 
-const SHARE_ALT = `The groove record beside the line “${SITE.tagline}”`;
+const SHARE_ALT = `The ${CATALOG[0].name} 12-pack and a can, beside the line “${SITE.tagline}”`;
 
 // ---------- Effects ----------
 
@@ -107,7 +114,7 @@ function render(asset: Asset, dir: string, outPath: string) {
 }
 
 function main() {
-  for (const [what, path] of [["Chrome", CHROME], ["Geist Mono", FONT]]) {
+  for (const [what, path] of [["Chrome", CHROME], ["Geist Mono", FONT], ["hero photo", heroFile]]) {
     if (!existsSync(path)) throw new Error(`${what} not found at ${path}`);
   }
   const dir = mkdtempSync(join(tmpdir(), "groove-brand-"));

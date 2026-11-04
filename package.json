@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "product-shots": "node scripts/product-shots.mts",
     "brand-assets": "node scripts/brand-assets.mts",
     "stripe-catalog": "node scripts/stripe-catalog.mts"
   },
