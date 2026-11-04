@@ -5,7 +5,7 @@ export const PREORDER = {
   name: "Groove 12-pack",
   cansPerPack: 12,
   usdPerCan: 3,
-  shipWindow: "April 2027",
+  shipWindow: "by December 2026",
   refund: "Full refund any time before it ships.",
   region: "Ships in the US.",
   maxPacks: 10,
