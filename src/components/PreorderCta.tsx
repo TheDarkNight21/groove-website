@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CATALOG } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
 import { formatUsd, packPriceCents } from "@/lib/preorder";
@@ -14,38 +15,41 @@ export const TERMS = [
   PREORDER.region,
 ].join(" ");
 
-// A plain form: the server opens a Stripe Checkout Session and redirects there, so
-// it works without JavaScript. A flavor choice appears only once there is one to make.
+// Pre-order opens /preorder, where the can and the checkout are. A plain link (or,
+// once there's a flavor to choose, a GET form) so it works without JavaScript too.
 export function PreorderCta() {
   const [only] = CATALOG;
+  const label = `${PREORDER.button} · ${formatUsd(PACK_PRICE_CENTS)}`;
+  if (CATALOG.length > 1) {
+    return (
+      <form method="get" action="/preorder/" className="preorder">
+        <label htmlFor="preorder-sku" className="sr-only">
+          Flavor
+        </label>
+        <select id="preorder-sku" name="sku" className="preorder-flavor" defaultValue={only.sku}>
+          {CATALOG.map((p) => (
+            <option key={p.sku} value={p.sku}>
+              {p.name} · {p.flavor}
+            </option>
+          ))}
+        </select>
+        <button type="submit" className="preorder-button">
+          {label}
+        </button>
+        <p className="preorder-terms">{TERMS}</p>
+      </form>
+    );
+  }
   return (
-    <form method="post" action="/api/checkout/" className="preorder">
-      {CATALOG.length > 1 ? (
-        <>
-          <label htmlFor="preorder-sku" className="sr-only">
-            Flavor
-          </label>
-          <select id="preorder-sku" name="sku" className="preorder-flavor" defaultValue={only.sku}>
-            {CATALOG.map((p) => (
-              <option key={p.sku} value={p.sku}>
-                {p.name} · {p.flavor}
-              </option>
-            ))}
-          </select>
-        </>
-      ) : (
-        <>
-          <input type="hidden" name="sku" value={only.sku} />
-          <p className="preorder-flavor-name">
-            {only.name}
-            <span>{only.flavor}</span>
-          </p>
-        </>
-      )}
-      <button type="submit" className="preorder-button">
-        {PREORDER.button} · {formatUsd(PACK_PRICE_CENTS)}
-      </button>
+    <div className="preorder">
+      <p className="preorder-flavor-name">
+        {only.name}
+        <span>{only.flavor}</span>
+      </p>
+      <Link href="/preorder/" className="preorder-button">
+        {label}
+      </Link>
       <p className="preorder-terms">{TERMS}</p>
-    </form>
+    </div>
   );
 }
