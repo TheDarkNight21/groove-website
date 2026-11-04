@@ -9,6 +9,16 @@
 // PROVISIONAL: 170 oz is a comparable 12 x 12 fl oz energy-drink case (~10.6 lb),
 // not a weighed Groove box. Weigh a packed box and replace it before shipping.
 
+// The product shot: a transparent render, served as webp with a png fallback.
+// width and height are the files' own pixels, so the page reserves the right space.
+export type ProductImage = {
+  readonly webp: string;
+  readonly png: string;
+  readonly alt: string;
+  readonly width: number;
+  readonly height: number;
+};
+
 export type Product = {
   readonly sku: string;
   readonly name: string;
@@ -16,6 +26,7 @@ export type Product = {
   readonly flavor: string;
   readonly lookupKey: string;
   readonly weightOz: number;
+  readonly image: ProductImage;
 };
 
 export const CATALOG: readonly Product[] = [
@@ -25,6 +36,14 @@ export const CATALOG: readonly Product[] = [
     flavor: "Peach pineapple",
     lookupKey: "miami-groove-12pk",
     weightOz: 170,
+    // Front view of the proposed Miami can (groove-can), rendered for the pre-order.
+    image: {
+      webp: "/products/miami-can.webp",
+      png: "/products/miami-can.png",
+      alt: "The Miami Groove can: white, with a black record and a peach label. Peach pineapple sparkling energy drink.",
+      width: 900,
+      height: 2501,
+    },
   },
 ];
 
