@@ -10,3 +10,8 @@ export function formatUsd(cents: number): string {
     maximumFractionDigits: 2,
   }).format(cents / 100);
 }
+
+// Where Stripe sends a buyer after paying. Stripe fills in {CHECKOUT_SESSION_ID};
+// the thanks page reads that session back to show the order.
+export const thanksUrl = (origin: string, thanksPath: string): string =>
+  `${origin}${thanksPath}/?session_id={CHECKOUT_SESSION_ID}`;

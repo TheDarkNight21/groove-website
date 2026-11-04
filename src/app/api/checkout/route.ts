@@ -1,9 +1,11 @@
 import { CATALOG, productBySku } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
 import { env } from "@/lib/orders/server";
-import { createCheckout, stripeClient } from "@/lib/orders/stripe";
+import { openCheckout, stripeClient } from "@/lib/orders/stripe";
+import { thanksUrl } from "@/lib/preorder";
 
-// The hero's form posts here; the buyer is sent on to Stripe's hosted checkout.
+// The no-JavaScript path: /preorder's <noscript> form posts here, and the buyer is
+// sent on to Stripe's hosted checkout.
 // Any failure lands on /checkout-error/ with the reason in the server log.
 export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
@@ -20,11 +22,15 @@ export async function POST(request: Request) {
   const product = typeof sku === "string" ? productBySku(CATALOG, sku) : undefined;
   if (!product) return fail(`unknown sku ${String(sku)}`);
 
-  const url = await createCheckout(stripeClient(e.value.STRIPE_SECRET_KEY), {
+  const opened = await openCheckout(stripeClient(e.value.STRIPE_SECRET_KEY), {
     product,
     maxQuantity: PREORDER.maxPacks,
-    successUrl: `${origin}${PREORDER.thanks.path}/?session_id={CHECKOUT_SESSION_ID}`,
-    cancelUrl: `${origin}/`,
+    ui: {
+      kind: "hosted",
+      successUrl: thanksUrl(origin, PREORDER.thanks.path),
+      cancelUrl: `${origin}/`,
+    },
   });
-  return url.ok ? Response.redirect(url.value, 303) : fail(url.error);
+  if (!opened.ok) return fail(opened.error);
+  return opened.value.kind === "hosted" ? Response.redirect(opened.value.url, 303) : fail("expected a hosted session");
 }
