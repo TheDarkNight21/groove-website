@@ -67,9 +67,8 @@ export default async function Thanks({ searchParams }: PageProps<"/thanks">) {
               </div>
             </dl>
             <p className="thanks-ships">Ships {PREORDER.shipWindow}.</p>
-            <p className="preorder-terms">
-              {PREORDER.refund} {thanks.lede}
-            </p>
+            <p className="thanks-refund">{PREORDER.refund}</p>
+            <p className="thanks-note">{thanks.lede}</p>
             <Link href="/" className="not-found-link">
               {thanks.back} →
             </Link>
