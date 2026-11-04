@@ -7,7 +7,8 @@ import type { Result } from "../email";
 export const CHECKOUT_ENV = ["STRIPE_SECRET_KEY", "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"] as const;
 export type CheckoutEnvName = (typeof CHECKOUT_ENV)[number];
 
-export type CheckoutConfig = { readonly publishableKey: string; readonly mode: KeyMode };
+// secretKey is server-only: hand the client publishableKey alone, never this object.
+export type CheckoutConfig = { readonly secretKey: string; readonly publishableKey: string; readonly mode: KeyMode };
 
 export type ConfigProblem =
   | { readonly kind: "missing"; readonly names: readonly CheckoutEnvName[] }
@@ -27,13 +28,14 @@ export function checkoutConfig(env: Readonly<Record<string, string | undefined>>
   const missing = CHECKOUT_ENV.filter((n) => value(n) === "");
   if (missing.length > 0) return { ok: false, error: { kind: "missing", names: missing } };
 
-  const secret = keyMode(value("STRIPE_SECRET_KEY"));
+  const secretKey = value("STRIPE_SECRET_KEY");
+  const secret = keyMode(secretKey);
   if (!secret) return { ok: false, error: { kind: "unrecognized-key", name: "STRIPE_SECRET_KEY" } };
   const publishable = value("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
   const pubMode = publishable.startsWith("pk_") ? keyMode(publishable) : undefined;
   if (!pubMode) return { ok: false, error: { kind: "unrecognized-key", name: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" } };
   if (pubMode !== secret) return { ok: false, error: { kind: "mode-mismatch" } };
-  return { ok: true, value: { publishableKey: publishable, mode: secret } };
+  return { ok: true, value: { secretKey, publishableKey: publishable, mode: secret } };
 }
 
 // For the server log: names the problem, never a key.

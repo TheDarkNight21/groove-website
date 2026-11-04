@@ -117,7 +117,7 @@ describe("checkoutConfig", () => {
   });
 
   it("passes the publishable key through when both agree", () => {
-    expect(checkoutConfig(ok)).toEqual({ ok: true, value: { publishableKey: "pk_test_xyz", mode: "test" } });
+    expect(checkoutConfig(ok)).toEqual({ ok: true, value: { secretKey: "sk_test_abc", publishableKey: "pk_test_xyz", mode: "test" } });
     expect(keyMode("rk_live_1")).toBe("live");
     expect(keyMode("whsec_1")).toBeUndefined();
   });
@@ -200,6 +200,7 @@ describe("appearance", () => {
     expect(TOKENS.foreground).toBe(token("foreground"));
     expect(channels(TOKENS.muted)).toEqual(channels(token("muted")));
     expect(channels(TOKENS.hairline)).toEqual(channels(token("hairline")));
+    expect(TOKENS.danger).toBe(token("danger"));
     expect(APPEARANCE.variables?.colorText).toBe(token("foreground"));
   });
 });

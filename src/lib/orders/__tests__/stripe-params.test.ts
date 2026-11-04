@@ -42,6 +42,7 @@ describe("checkoutParams", () => {
         expect(p.automatic_tax).toEqual({ enabled: true });
         expect(p.metadata).toEqual({ sku: product.sku });
         expect(p).not.toHaveProperty("phone_number_collection");
+        expect(p.wallet_options).toEqual({ link: { display: "never" } });
         // after_expiration (recovery emails) isn't allowed with elements; we don't ask in either mode.
         expect(p).not.toHaveProperty("after_expiration");
       }),

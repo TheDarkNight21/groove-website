@@ -81,6 +81,8 @@ export const checkoutParams = (req: CheckoutRequest, priceId: string): Stripe.Ch
   ],
   // Card only (wallets are cards): a pre-order ships months out, which buy-now-pay-later terms don't allow.
   allowed_payment_method_types: ["card"],
+  // No Link: its "save my info" signup asks for a phone number, the field we dropped.
+  wallet_options: { link: { display: "never" } },
   shipping_address_collection: { allowed_countries: ["US"] },
   automatic_tax: { enabled: true },
   metadata: { sku: req.product.sku },
