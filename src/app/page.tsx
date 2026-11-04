@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { Hero } from "@/components/Hero";
+import { ProductPicture } from "@/components/product/ProductPicture";
+import { CATALOG } from "@/content/catalog";
 import { PACK_PRICE_CENTS, TERMS } from "@/components/PreorderCta";
 import { LAB } from "@/content/lab";
 import { PREORDER } from "@/content/preorder";
+import { formatUsd } from "@/lib/preorder";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
 
 // The pull quote is the founders' line from WHY[0], set on its own.
@@ -52,6 +55,23 @@ export default function Home() {
       </div>
 
       <Hero />
+
+      {/* The first scroll answers "what is it?": the box, as it arrives. */}
+      <section aria-labelledby="the-box" className="showcase">
+        <ProductPicture image={CATALOG[0].images[0]} className="showcase-shot" />
+        <div className="showcase-copy">
+          <p className="eyebrow">{CATALOG[0].flavor}</p>
+          <h2 id="the-box" className="showcase-name">
+            {CATALOG[0].name}
+          </h2>
+          <p className="showcase-facts">
+            {PREORDER.cansPerPack} cans · {formatUsd(PACK_PRICE_CENTS)} · Ships {PREORDER.shipWindow}
+          </p>
+          <Link href="/preorder/" className="preorder-button">
+            {PREORDER.button} · {formatUsd(PACK_PRICE_CENTS)}
+          </Link>
+        </div>
+      </section>
 
       <section aria-labelledby="why" className="block">
         <h2 id="why" className="eyebrow">

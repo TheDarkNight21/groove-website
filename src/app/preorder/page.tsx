@@ -3,9 +3,9 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { CheckoutUnavailable } from "@/components/checkout/CheckoutUnavailable";
 import { PreorderCheckout } from "@/components/checkout/PreorderCheckout";
-import { CanImage } from "@/components/product/CanImage";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { CATALOG } from "@/content/catalog";
-import { PREORDER, PREORDER_PROMISE } from "@/content/preorder";
+import { PREORDER, PREORDER_PROMISE, PREORDER_REASSURANCE } from "@/content/preorder";
 import { SITE } from "@/content/site";
 import { checkoutConfig, describeConfigProblem } from "@/lib/checkout/config";
 import { preorderProduct } from "@/lib/checkout/product";
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const perCanCents = PREORDER.usdPerCan * 100;
 
-// The can first, then the checkout. Keys are read per request, so a missing one
+// The photos first, then the checkout. Keys are read per request, so a missing one
 // shows the unavailable state rather than a page frozen at build time.
 export default async function Preorder({ searchParams }: PageProps<"/preorder">) {
   await connection();
@@ -35,20 +35,18 @@ export default async function Preorder({ searchParams }: PageProps<"/preorder">)
         <Link href="/" className="wordmark">
           {SITE.name}
         </Link>
-        <span className="eyebrow">{PREORDER.button}</span>
       </div>
       {product ? (
         <div className="buy">
-          <CanImage image={product.image} className="buy-can" eager />
+          <ProductGallery images={product.images} name={product.name} />
           <div className="buy-panel">
             <h1 className="buy-name">{product.name}</h1>
             <p className="buy-flavor">
               <span className="flavor-marker" style={{ backgroundColor: product.accent }} aria-hidden="true" />
               {product.flavor}
             </p>
-            <p className="buy-price">
-              {PREORDER.cansPerPack} cans · {formatUsd(perCanCents)} a can
-            </p>
+            <p className="buy-what">{PREORDER.what}</p>
+            <p className="buy-promise">{PREORDER_REASSURANCE}</p>
             {config.ok ? (
               <>
                 <PreorderCheckout publishableKey={config.value.publishableKey} sku={product.sku} />

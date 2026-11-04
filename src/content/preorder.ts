@@ -10,6 +10,9 @@ export const PREORDER = {
   region: "Ships in the US.",
   maxPacks: 10,
   button: "Pre-order",
+  // What it is, under the flavor name on /preorder: the can says it in 9pt, the page
+  // should say it too.
+  what: "Sparkling energy for the flow state. 120 mg caffeine.",
   charged: "Charged today.",
   waitlistLink: "Not ready to order? Join the waitlist",
   thanks: {
@@ -24,3 +27,6 @@ export const PREORDER = {
 // The promise under every pay button, in the order a buyer worries: when am I
 // charged, when does it come, what if I change my mind.
 export const PREORDER_PROMISE = `${PREORDER.charged} Ships ${PREORDER.shipWindow}. ${PREORDER.refund}`;
+
+// Above the checkout, where the worry starts: the risk-free part first.
+export const PREORDER_REASSURANCE = `${PREORDER.refund} Ships ${PREORDER.shipWindow}.`;

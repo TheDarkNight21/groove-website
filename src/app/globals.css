@@ -9,8 +9,11 @@
   --hairline: rgb(0 0 0 / 0.12);
   /* Errors only: the one color on the site, used where something went wrong. */
   --danger: #c8102e;
-  /* The can is near-white (#f0f0f0); it stands on this quiet grey, as in the can viewer. */
-  --stage: #f3f3f3;
+  /* The product photos stand on a wash of the Miami peach, lit from above. Same
+     colors as STAGE in src/content/catalog.ts, which the photos are rendered on. */
+  --stage-light: #fcf6ef;
+  --stage: #f8ecdf;
+  --stage-floor: #f1dcc6;
   --gutter: clamp(1rem, 4vw, 3rem);
   /* Critically damped, ~0.3s response (Apple default UI spring, approximated). */
   --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
@@ -119,8 +122,15 @@ body {
   display: grid;
   gap: clamp(1.5rem, 6vw, 4rem);
   align-items: center;
-  padding-block: clamp(0.5rem, 4vh, 6rem) clamp(4rem, 12vh, 9rem);
-  min-height: min(52rem, calc(100svh - 5rem));
+  padding-block: clamp(0.5rem, 4vh, 6rem) clamp(2rem, 6vh, 9rem);
+  /* Phones: a little short of the screen, so the top of the box shows below it. */
+  min-height: min(52rem, calc(100svh - 9rem));
+}
+@media (min-width: 900px) {
+  .hero {
+    padding-block-end: clamp(4rem, 12vh, 9rem);
+    min-height: min(52rem, calc(100svh - 5rem));
+  }
 }
 
 .hero-copy {
@@ -165,6 +175,66 @@ body {
   .hero-copy .waitlist-link,
   .hero-copy .waitlist-done {
     order: 0;
+  }
+}
+
+/* ---------- Homepage: the product, right under the record ---------- */
+
+.showcase {
+  display: grid;
+  gap: clamp(1.25rem, 4vw, 3rem);
+  align-items: center;
+  padding-block: 0 clamp(4rem, 10vw, 8rem);
+}
+.showcase-shot {
+  display: block;
+  margin-inline: calc(-1 * var(--gutter));
+  aspect-ratio: 4 / 5;
+  max-height: 80svh;
+  background: var(--stage);
+  overflow: hidden;
+}
+.showcase-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.showcase-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.showcase-name {
+  margin-top: 0.75rem;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+  text-wrap: balance;
+}
+.showcase-facts {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+.showcase-copy .preorder-button {
+  margin-top: clamp(1.25rem, 3vh, 2rem);
+}
+@media (min-width: 640px) {
+  .showcase-shot {
+    margin-inline: 0;
+    border-radius: 1.5rem;
+  }
+}
+@media (min-width: 900px) {
+  .showcase {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 6rem);
+  }
+  .showcase-shot {
+    aspect-ratio: 1;
+    max-height: none;
   }
 }
 
@@ -772,29 +842,14 @@ body {
   color: var(--muted);
 }
 
-/* ---------- /preorder: the can, then the checkout ---------- */
+/* ---------- /preorder: the photos, then the checkout ---------- */
 
-/* Phones: the can leads the first screen, and the packs, total and Apple Pay
-   still fit under it. Wide: side by side, the can stays put as the form scrolls. */
+/* Phones: the photos lead the first screen, and the packs and total still fit under
+   them. Wide: side by side, the photos stay put as the form scrolls. */
 .buy {
   display: grid;
   gap: clamp(1.25rem, 4vw, 4rem);
   padding-block: 0 clamp(4rem, 10vh, 8rem);
-}
-
-.buy-can {
-  display: flex;
-  justify-content: center;
-  background: var(--stage);
-  /* Full-bleed on phones: out past the page gutter to both edges. */
-  margin-inline: calc(-1 * var(--gutter));
-  /* The stage, not just the can, is capped: about half a phone screen. */
-  height: min(52svh, 34rem);
-  padding-block: 1rem;
-}
-.buy-can img {
-  height: 100%;
-  width: auto;
 }
 
 .buy-panel {
@@ -821,22 +876,265 @@ body {
   font-size: 0.875rem;
   color: var(--muted);
 }
+.buy-what {
+  margin-top: 0.9rem;
+  max-width: 34ch;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.buy-promise {
+  margin-top: 0.5rem;
+  max-width: 40ch;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* One photo, standing still (the thanks page). */
+.buy-shot {
+  display: block;
+  margin-inline: calc(-1 * var(--gutter));
+  height: min(52svh, 34rem);
+  background: var(--stage);
+  overflow: hidden;
+}
+.buy-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 @media (min-width: 900px) {
   .buy {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     align-items: start;
   }
-  .buy-can {
+  .buy-panel {
+    margin-inline: 0;
+    padding-top: clamp(0rem, 3vh, 2rem);
+  }
+  .buy-shot {
     position: sticky;
     top: 1rem;
     margin-inline: 0;
     border-radius: 1.5rem;
-    height: min(calc(100svh - 7rem), 46rem);
-    padding-block: clamp(1.5rem, 5vh, 3.5rem);
+    height: auto;
+    aspect-ratio: 4 / 5;
+    max-height: calc(100svh - 7rem);
   }
-  .buy-panel {
+}
+
+/* ---------- The product gallery ---------- */
+
+.gallery {
+  --stage-radius: 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* The stage the photos sit on. Phones: full-bleed, about half the screen tall. */
+.gallery-stage {
+  position: relative;
+  margin-inline: calc(-1 * var(--gutter));
+  background: linear-gradient(var(--stage-light), var(--stage) 62%, var(--stage-floor));
+}
+
+.gallery-track {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  padding-inline: var(--gutter);
+  scrollbar-width: none;
+  height: min(52svh, 34rem);
+}
+.gallery-track::-webkit-scrollbar {
+  display: none;
+}
+.gallery-track:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: -2px;
+}
+
+/* Each photo takes most of the width; the next one peeks in, so it reads as a strip. */
+.gallery-slide {
+  position: relative;
+  flex: 0 0 calc(100% - 1.5rem);
+  margin: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--stage);
+}
+.gallery-slide picture,
+.gallery-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gallery-slide img {
+  object-fit: cover;
+  transition: transform 600ms var(--ease-settle);
+}
+
+.gallery-caption {
+  text-align: center;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Phones: the thumbnails are dots. */
+.gallery-thumbs {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+.gallery-thumb {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.gallery-thumb::before {
+  content: "";
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 999px;
+  background: var(--foreground);
+  opacity: 0.18;
+  transition: opacity 200ms var(--ease-settle), transform 200ms var(--ease-settle);
+}
+.gallery-thumb[aria-current="true"]::before {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.gallery-thumb picture {
+  display: none;
+}
+.gallery-thumb:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+/* Photos ease in as they slide into place, where the browser can tie it to scroll. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .gallery-slide img {
+      animation: gallery-arrive linear both;
+      animation-timeline: view(inline);
+      animation-range: entry 0% cover 50%;
+    }
+  }
+}
+@keyframes gallery-arrive {
+  from {
+    opacity: 0.35;
+    scale: 0.94;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* A mouse can lean in: the photo under it comes a little closer. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .gallery-slide:hover img {
+    transform: scale(1.045);
+  }
+}
+
+/* Tablets: a bigger stage with rounded corners, and real thumbnails under it. */
+@media (min-width: 640px) {
+  .gallery-stage {
+    width: 100%;
+    max-width: calc(min(70svh, 52rem) * 0.8);
+    margin-inline: auto;
+    border-radius: var(--stage-radius);
+    overflow: hidden;
+  }
+  .gallery-track {
+    gap: 0;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+  .gallery-slide {
+    flex-basis: 100%;
+    border-radius: 0;
+  }
+  .gallery-thumbs {
+    gap: 0.6rem;
+  }
+  .gallery-thumb {
+    width: 4.25rem;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: var(--stage);
+    outline: 1px solid transparent;
+    outline-offset: 2px;
+    opacity: 0.55;
+    transition: opacity 200ms var(--ease-settle), outline-color 200ms var(--ease-settle);
+  }
+  .gallery-thumb::before {
+    display: none;
+  }
+  .gallery-thumb picture,
+  .gallery-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gallery-thumb:hover {
+    opacity: 0.85;
+  }
+  .gallery-thumb[aria-current="true"] {
+    opacity: 1;
+    outline-color: var(--foreground);
+  }
+  .gallery-thumb:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+}
+
+/* Computers: the thumbnails stand in a rail beside the stage, and the whole gallery
+   stays in view while the checkout scrolls past. */
+@media (min-width: 900px) {
+  .gallery {
+    position: sticky;
+    top: 1rem;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+  }
+  .gallery-stage {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: calc((100svh - 4rem) * 0.8);
     margin-inline: 0;
+  }
+  .gallery-caption {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+  }
+  .gallery-thumbs {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
   }
 }
 

@@ -179,13 +179,31 @@ describe("preorderProduct", () => {
   });
 });
 
-describe("catalog image", () => {
-  it("width and height are the png's own pixels, and the webp exists", () => {
-    const png = readFileSync(new URL(`../../../../public${miami.image.png}`, import.meta.url));
-    // PNG IHDR: width and height are big-endian u32 at bytes 16 and 20.
-    expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([miami.image.width, miami.image.height]);
-    const webp = readFileSync(new URL(`../../../../public${miami.image.webp}`, import.meta.url));
-    expect(webp.subarray(8, 12).toString("ascii")).toBe("WEBP");
+// A JPEG's size is in its start-of-frame segment (SOF0..SOF15, not DHT/JPG/DAC).
+const jpegSize = (b: Buffer): [number, number] | undefined => {
+  for (let i = 2; i + 9 < b.length; ) {
+    if (b[i] !== 0xff) return undefined;
+    const marker = b[i + 1];
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker))
+      return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)];
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return undefined;
+};
+
+describe("catalog images", () => {
+  it("every product leads with its photos, and each photo's files exist at its stated size", () => {
+    for (const product of CATALOG) {
+      expect(product.images.length).toBeGreaterThan(0);
+      for (const image of product.images) {
+        const jpg = readFileSync(new URL(`../../../../public${image.jpg}`, import.meta.url));
+        expect(jpegSize(jpg)).toEqual([image.width, image.height]);
+        const webp = readFileSync(new URL(`../../../../public${image.webp}`, import.meta.url));
+        expect(webp.subarray(8, 12).toString("ascii")).toBe("WEBP");
+        expect(image.alt.length).toBeGreaterThan(0);
+        expect(image.caption.length).toBeGreaterThan(0);
+      }
+    }
   });
 });
 

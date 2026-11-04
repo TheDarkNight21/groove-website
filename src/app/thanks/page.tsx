@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CanImage } from "@/components/product/CanImage";
+import { ProductPicture } from "@/components/product/ProductPicture";
 import { CATALOG } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
 import { SITE } from "@/content/site";
@@ -48,7 +48,7 @@ export default async function Thanks({ searchParams }: PageProps<"/thanks">) {
       </div>
       {order.ok ? (
         <div className="buy">
-          <CanImage image={order.value.lines[0].product.image} className="buy-can" eager />
+          <ProductPicture image={order.value.lines[0].product.images[0]} className="buy-shot" eager />
           <section className="buy-panel">
             <h1 className="display">{thanks.title}</h1>
             <ul className="thanks-lines">
