@@ -20,3 +20,7 @@ export const PREORDER = {
     back: "Back to the record",
   },
 } as const;
+
+// The promise under every pay button, in the order a buyer worries: when am I
+// charged, when does it come, what if I change my mind.
+export const PREORDER_PROMISE = `${PREORDER.charged} Ships ${PREORDER.shipWindow}. ${PREORDER.refund}`;

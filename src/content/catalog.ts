@@ -27,6 +27,9 @@ export type Product = {
   readonly lookupKey: string;
   readonly weightOz: number;
   readonly image: ProductImage;
+  // The flavor's color, sampled from the record rings on its can render. Used once,
+  // as the small marker by the flavor name on /preorder; buttons stay black.
+  readonly accent: string;
 };
 
 export const CATALOG: readonly Product[] = [
@@ -44,6 +47,7 @@ export const CATALOG: readonly Product[] = [
       width: 900,
       height: 2501,
     },
+    accent: "#f6d2ab",
   },
 ];
 

@@ -7,6 +7,10 @@
   --vinyl: #0b0b0b;
   --muted: rgb(0 0 0 / 0.55);
   --hairline: rgb(0 0 0 / 0.12);
+  /* Errors only: the one color on the site, used where something went wrong. */
+  --danger: #c8102e;
+  /* The can is near-white (#f0f0f0); it stands on this quiet grey, as in the can viewer. */
+  --stage: #f3f3f3;
   --gutter: clamp(1rem, 4vw, 3rem);
   /* Critically damped, ~0.3s response (Apple default UI spring, approximated). */
   --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
@@ -766,4 +770,255 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* ---------- /preorder: the can, then the checkout ---------- */
+
+/* Phones: the can fills the first screen; the form follows. Wide: side by side,
+   the can stays in view while the form scrolls. */
+.buy {
+  display: grid;
+  gap: clamp(1.25rem, 4vw, 4rem);
+  padding-block: 0 clamp(4rem, 10vh, 8rem);
+}
+
+.buy-can {
+  display: flex;
+  justify-content: center;
+  background: var(--stage);
+  /* Full-bleed on phones: out past the page gutter to both edges. */
+  margin-inline: calc(-1 * var(--gutter));
+  padding-block: clamp(1.25rem, 4svh, 2.5rem);
+}
+/* Owns the first screen on a phone, but leaves room for the name, price and,
+   one short scroll later, the Apple Pay button. */
+.buy-can img {
+  height: min(50svh, 30rem);
+  width: auto;
+}
+
+.buy-panel {
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+.buy-name {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+}
+.buy-flavor {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.buy-price {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .buy {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .buy-can {
+    position: sticky;
+    top: 1.5rem;
+    margin-inline: 0;
+    border-radius: 1.5rem;
+    padding-block: clamp(2rem, 6vh, 4rem);
+  }
+  .buy-can img {
+    height: min(76svh, 44rem);
+  }
+  .buy-panel {
+    margin-inline: 0;
+    padding-top: clamp(1rem, 6vh, 4rem);
+  }
+}
+
+/* The flavor's one touch of color. */
+.flavor-marker {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  vertical-align: 0.05em;
+}
+
+.checkout {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+/* Held space while Stripe opens: quiet, the height of the first fields. */
+.checkout-quiet {
+  min-height: 24rem;
+  margin-top: 2rem;
+}
+
+/* Packs on the left, the session's total on the right: one row. */
+.checkout-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  padding: 0.25rem;
+}
+.stepper-button {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform 160ms var(--ease-settle), opacity 160ms var(--ease-settle);
+}
+.stepper-button:active:not(:disabled) {
+  transform: scale(0.92);
+  transition-duration: 80ms;
+}
+.stepper-button:disabled {
+  opacity: 0.25;
+}
+.stepper-button:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+.stepper-value {
+  min-width: 11ch;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkout-total {
+  display: grid;
+  gap: 0.25rem;
+  margin-left: auto;
+  text-align: right;
+}
+.checkout-total > div {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.checkout-total dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.checkout-total > div:last-child dd {
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkout-express {
+  display: grid;
+  gap: 0.75rem;
+}
+.checkout-or {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.checkout-or::before,
+.checkout-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.checkout-fields {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.checkout-pay {
+  width: 100%;
+}
+.checkout-pay:disabled {
+  opacity: 0.55;
+}
+
+.checkout-promise {
+  margin-top: -0.75rem;
+  max-width: none;
+}
+
+/* The one color on the page: something went wrong, right here. */
+.checkout-error {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--danger);
+}
+
+.checkout-unavailable {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hairline);
+}
+.checkout-unavailable .not-found-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+}
+
+.checkout-noscript {
+  margin-top: 2rem;
+}
+
+/* ---------- /thanks with a real order ---------- */
+
+.thanks-lines {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+.thanks-lines > li {
+  display: grid;
+}
+.thanks-total {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.thanks-ships {
+  margin-top: 1.5rem;
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  letter-spacing: -0.025em;
+}
+.thanks-total {
+  margin-left: 0;
+  text-align: left;
+}
+.thanks-total > div {
+  justify-content: space-between;
+}
+.buy-panel .not-found-link {
+  display: inline-block;
 }

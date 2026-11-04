@@ -12,7 +12,7 @@ export const TOKENS = {
   // The site's field radius (.inquiry-field); pills are for single buttons.
   radius: "1.5rem",
   focusRing: "0 0 0 4px rgba(0, 0, 0, 0.08)", // .waitlist-field:focus-within
-  danger: "#c8102e",
+  danger: "#c8102e", // --danger
 } as const;
 
 // The same face as next/font's Geist Mono on the page, loaded inside Stripe's iframes.
