@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { SITE } from "@/content/site";
 import { BRAND_COLORS } from "@/lib/record-art";
 import "./globals.css";
@@ -42,7 +43,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        {/* Vercel Web Analytics: page views, referrers, devices. No cookies. */}
+        <Analytics />
+      </body>
     </html>
   );
 }
