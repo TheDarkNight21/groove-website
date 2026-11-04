@@ -774,8 +774,8 @@ body {
 
 /* ---------- /preorder: the can, then the checkout ---------- */
 
-/* Phones: the can fills the first screen; the form follows. Wide: side by side,
-   the can stays in view while the form scrolls. */
+/* Phones: the can leads the first screen, and the packs, total and Apple Pay
+   still fit under it. Wide: side by side, the can stays put as the form scrolls. */
 .buy {
   display: grid;
   gap: clamp(1.25rem, 4vw, 4rem);
@@ -788,12 +788,12 @@ body {
   background: var(--stage);
   /* Full-bleed on phones: out past the page gutter to both edges. */
   margin-inline: calc(-1 * var(--gutter));
-  padding-block: clamp(1.25rem, 4svh, 2.5rem);
+  /* The stage, not just the can, is capped: about half a phone screen. */
+  height: min(52svh, 34rem);
+  padding-block: 1rem;
 }
-/* Owns the first screen on a phone, but leaves room for the name, price and,
-   one short scroll later, the Apple Pay button. */
 .buy-can img {
-  height: min(50svh, 30rem);
+  height: 100%;
   width: auto;
 }
 
@@ -829,17 +829,14 @@ body {
   }
   .buy-can {
     position: sticky;
-    top: 1.5rem;
+    top: 1rem;
     margin-inline: 0;
     border-radius: 1.5rem;
-    padding-block: clamp(2rem, 6vh, 4rem);
-  }
-  .buy-can img {
-    height: min(76svh, 44rem);
+    height: min(calc(100svh - 7rem), 46rem);
+    padding-block: clamp(1.5rem, 5vh, 3.5rem);
   }
   .buy-panel {
     margin-inline: 0;
-    padding-top: clamp(1rem, 6vh, 4rem);
   }
 }
 
@@ -855,7 +852,7 @@ body {
 
 .checkout {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   margin-top: 1.25rem;
 }
 
@@ -936,6 +933,13 @@ body {
   display: grid;
   gap: 0.75rem;
 }
+/* No wallets on this device (or plain http): the slot takes no room, not even
+   the gap above it. It opens once Stripe reports a wallet. */
+.checkout-express[data-wallets="none"] {
+  height: 0;
+  margin-top: -1rem;
+  overflow: hidden;
+}
 .checkout-or {
   display: flex;
   align-items: center;
@@ -955,7 +959,7 @@ body {
 
 .checkout-fields {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   min-width: 0;
 }
 
@@ -967,7 +971,7 @@ body {
 }
 
 .checkout-promise {
-  margin-top: -0.75rem;
+  margin-top: -0.5rem;
   max-width: none;
 }
 
@@ -1019,6 +1023,17 @@ body {
 .thanks-total > div {
   justify-content: space-between;
 }
+/* Same step as .not-found-link elsewhere; it needs a block box to take the margin. */
 .buy-panel .not-found-link {
   display: inline-block;
+}
+.thanks-refund {
+  margin-top: 0.5rem;
+}
+.thanks-note {
+  margin-top: 1rem;
+  max-width: 40ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted);
 }

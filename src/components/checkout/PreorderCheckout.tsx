@@ -183,7 +183,7 @@ function Form({ checkout }: { checkout: StripeCheckoutElementsValue }) {
         </p>
       )}
 
-      <section className="checkout-express" aria-label="Express checkout">
+      <section className="checkout-express" aria-label="Express checkout" data-wallets={wallets ? "some" : "none"}>
         <ExpressCheckoutElement
           options={{
             buttonHeight: 52,
