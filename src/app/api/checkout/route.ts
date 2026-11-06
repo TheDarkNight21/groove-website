@@ -1,7 +1,10 @@
 import { CATALOG, productBySku } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
 import { env } from "@/lib/orders/server";
-import { openCheckout, stripeClient } from "@/lib/orders/stripe";
+import { openCheckout, stripeClient, type PriceIds } from "@/lib/orders/stripe";
+
+// Remembered across requests on a warm instance; see openCheckoutWith.
+const priceIds: PriceIds = new Map();
 import { thanksUrl } from "@/lib/preorder";
 
 // The no-JavaScript path: /preorder's <noscript> form posts here, and the buyer is
@@ -30,7 +33,7 @@ export async function POST(request: Request) {
       successUrl: thanksUrl(origin, PREORDER.thanks.path),
       cancelUrl: `${origin}/`,
     },
-  });
+  }, priceIds);
   if (!opened.ok) return fail(opened.error);
   return opened.value.kind === "hosted" ? Response.redirect(opened.value.url, 303) : fail("expected a hosted session");
 }

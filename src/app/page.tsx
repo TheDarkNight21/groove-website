@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { WarmStripe } from "@/components/checkout/WarmStripe";
 import { Hero } from "@/components/Hero";
 import { PACK_PRICE_CENTS, TERMS } from "@/components/PreorderCta";
 import { LAB } from "@/content/lab";
 import { PREORDER } from "@/content/preorder";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
+import { checkoutConfig } from "@/lib/checkout/config";
 
 // The pull quote is the founders' line from WHY[0], set on its own.
 const PULL_QUOTE = "We learned that the hard way, with our own teeth.";
@@ -41,8 +43,11 @@ const PRODUCT_DATA = {
 const jsonLd = (data: object) => JSON.stringify(data).replace(/</g, "\\u003c");
 
 export default function Home() {
+  // Warm Stripe for /preorder only when checkout can actually open.
+  const checkout = checkoutConfig(process.env);
   return (
     <main className="page">
+      {checkout.ok && <WarmStripe publishableKey={checkout.value.publishableKey} />}
       {/* JSON can't close the script tag once "<" is escaped. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(STRUCTURED_DATA) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(PRODUCT_DATA) }} />

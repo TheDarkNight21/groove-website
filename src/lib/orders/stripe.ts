@@ -108,17 +108,60 @@ export const openedFrom = (
   }
 };
 
-export async function openCheckout(stripe: Stripe, req: CheckoutRequest): Promise<Result<OpenedCheckout, string>> {
-  try {
-    const prices = await stripe.prices.list({ lookup_keys: [req.product.lookupKey], active: true, limit: 1 });
-    const price = prices.data[0];
-    if (!price) return { ok: false, error: `no active Stripe price with lookup key ${req.product.lookupKey}` };
-    const session = await stripe.checkout.sessions.create(checkoutParams(req, price.id));
-    return openedFrom(req.ui, session);
-  } catch (e) {
-    return { ok: false, error: message(e) };
-  }
-}
+// The two Stripe calls opening a checkout needs, as a capability, so the
+// open-and-cache logic below runs against an in-memory stand-in in tests.
+export type CheckoutApi = {
+  readonly findPriceId: (lookupKey: string) => Promise<string | undefined>;
+  readonly createSession: (
+    params: Stripe.Checkout.SessionCreateParams,
+  ) => Promise<{ readonly url: string | null; readonly client_secret: string | null }>;
+};
+
+export const checkoutApi = (stripe: Stripe): CheckoutApi => ({
+  findPriceId: async (lookupKey) =>
+    (await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 })).data[0]?.id,
+  createSession: (params) => stripe.checkout.sessions.create(params),
+});
+
+// Lookup key → price id, remembered for the life of a warm server instance so a
+// checkout costs one Stripe call, not two. Owned by the route that passes it in.
+export type PriceIds = Map<string, string>;
+
+// Opens a session with the remembered price id. If Stripe refuses it (the price was
+// archived or replaced since), the entry is dropped and the price is looked up again
+// once, so a stale cache costs one slow checkout, never a failed one.
+export const openCheckoutWith =
+  (api: CheckoutApi, priceIds: PriceIds) =>
+  async (req: CheckoutRequest): Promise<Result<OpenedCheckout, string>> => {
+    const key = req.product.lookupKey;
+    const lookUp = async (): Promise<Result<string, string>> => {
+      const id = await api.findPriceId(key);
+      if (!id) return { ok: false, error: `no active Stripe price with lookup key ${key}` };
+      priceIds.set(key, id);
+      return { ok: true, value: id };
+    };
+    const open = async (priceId: string) => openedFrom(req.ui, await api.createSession(checkoutParams(req, priceId)));
+    try {
+      const remembered = priceIds.get(key);
+      if (remembered !== undefined) {
+        try {
+          return await open(remembered);
+        } catch {
+          priceIds.delete(key);
+        }
+      }
+      const priceId = await lookUp();
+      return priceId.ok ? await open(priceId.value) : priceId;
+    } catch (e) {
+      return { ok: false, error: message(e) };
+    }
+  };
+
+export const openCheckout = (
+  stripe: Stripe,
+  req: CheckoutRequest,
+  priceIds: PriceIds = new Map(),
+): Promise<Result<OpenedCheckout, string>> => openCheckoutWith(checkoutApi(stripe), priceIds)(req);
 
 // The slice of a finished session the thanks page reads. Nothing personal: the page
 // is reachable by anyone holding the session id, so it shows what, how many, how much.

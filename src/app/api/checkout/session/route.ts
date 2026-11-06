@@ -1,7 +1,10 @@
 import { CATALOG, productBySku } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
 import { checkoutConfig, describeConfigProblem } from "@/lib/checkout/config";
-import { openCheckout, stripeClient } from "@/lib/orders/stripe";
+import { openCheckout, stripeClient, type PriceIds } from "@/lib/orders/stripe";
+
+// Remembered across requests on a warm instance; see openCheckoutWith.
+const priceIds: PriceIds = new Map();
 import { thanksUrl } from "@/lib/preorder";
 
 // /preorder asks here for a Checkout Session to mount Stripe's fields on. The answer
@@ -26,7 +29,7 @@ export async function POST(request: Request) {
     product,
     maxQuantity: PREORDER.maxPacks,
     ui: { kind: "elements", returnUrl: thanksUrl(origin, PREORDER.thanks.path) },
-  });
+  }, priceIds);
   if (!opened.ok) return fail(502, opened.error);
   if (opened.value.kind !== "elements") return fail(502, "expected an elements session");
   // The secret only goes to the page that mounts it; never logged, never in a URL.

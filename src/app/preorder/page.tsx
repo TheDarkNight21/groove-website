@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { preconnect, preload } from "react-dom";
 import { CheckoutUnavailable } from "@/components/checkout/CheckoutUnavailable";
 import { PreorderCheckout } from "@/components/checkout/PreorderCheckout";
 import { CanImage } from "@/components/product/CanImage";
@@ -8,6 +9,7 @@ import { CATALOG } from "@/content/catalog";
 import { PREORDER, PREORDER_PROMISE } from "@/content/preorder";
 import { SITE } from "@/content/site";
 import { checkoutConfig, describeConfigProblem } from "@/lib/checkout/config";
+import { CHECKOUT_ORIGINS, STRIPE_JS_URL } from "@/lib/checkout/origins";
 import { preorderProduct } from "@/lib/checkout/product";
 import { formatUsd, packPriceCents } from "@/lib/preorder";
 
@@ -28,6 +30,10 @@ export default async function Preorder({ searchParams }: PageProps<"/preorder">)
   const product = preorderProduct(CATALOG, sku);
   const config = checkoutConfig(process.env);
   if (!config.ok) console.error("preorder:", describeConfigProblem(config.error));
+  if (config.ok && product) {
+    for (const o of CHECKOUT_ORIGINS) preconnect(o.href, "crossOrigin" in o ? { crossOrigin: o.crossOrigin } : {});
+    preload(STRIPE_JS_URL, { as: "script" });
+  }
 
   return (
     <main className="page">
