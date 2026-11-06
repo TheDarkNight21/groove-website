@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { WarmStripe } from "@/components/checkout/WarmStripe";
 import { Hero } from "@/components/Hero";
+import { StagePicture } from "@/components/product/StagePicture";
 import { PACK_PRICE_CENTS, TERMS } from "@/components/PreorderCta";
+import { CATALOG } from "@/content/catalog";
 import { LAB } from "@/content/lab";
 import { PREORDER } from "@/content/preorder";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
 import { checkoutConfig } from "@/lib/checkout/config";
+import { formatUsd } from "@/lib/preorder";
 
 // The pull quote is the founders' line from WHY[0], set on its own.
 const PULL_QUOTE = "We learned that the hard way, with our own teeth.";
@@ -57,6 +60,23 @@ export default function Home() {
       </div>
 
       <Hero />
+
+      {/* The first scroll answers "what is it?": the can. */}
+      <section aria-labelledby="the-can" className="showcase">
+        <StagePicture photo={CATALOG[0].showcase} className="showcase-shot" />
+        <div className="showcase-copy">
+          <p className="eyebrow">{CATALOG[0].flavor}</p>
+          <h2 id="the-can" className="showcase-name">
+            {CATALOG[0].name}
+          </h2>
+          <p className="showcase-facts">
+            {PREORDER.cansPerPack} cans · {formatUsd(PACK_PRICE_CENTS)} · Ships {PREORDER.shipWindow}
+          </p>
+          <Link href="/preorder/" className="preorder-button">
+            {PREORDER.button} · {formatUsd(PACK_PRICE_CENTS)}
+          </Link>
+        </div>
+      </section>
 
       <section aria-labelledby="why" className="block">
         <h2 id="why" className="eyebrow">

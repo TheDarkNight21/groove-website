@@ -19,6 +19,18 @@ export type ProductImage = {
   readonly height: number;
 };
 
+// A photo of the product on the grey studio stage (Blender Cycles, the same shoot as
+// the can section's anchors on the scroll-hero branch), 4:5, served as webp with a
+// jpeg behind it. The source render and its encoder are on the grey-renders branch
+// (assets/products/can.png, scripts/product-shots.mts).
+export type StagePhoto = {
+  readonly webp: string;
+  readonly jpg: string;
+  readonly alt: string;
+  readonly width: number;
+  readonly height: number;
+};
+
 export type Product = {
   readonly sku: string;
   readonly name: string;
@@ -27,6 +39,9 @@ export type Product = {
   readonly lookupKey: string;
   readonly weightOz: number;
   readonly image: ProductImage;
+  // The one photo on the homepage, under the hero: the can on the stage. The line
+  // beside it says it comes as a 12-pack.
+  readonly showcase: StagePhoto;
   // The flavor's color, sampled from the record rings on its can render. Used once,
   // as the small marker by the flavor name on /preorder; buttons stay black.
   readonly accent: string;
@@ -46,6 +61,13 @@ export const CATALOG: readonly Product[] = [
       alt: "The Miami Groove can: white, with a black record and a peach label. Peach pineapple sparkling energy drink.",
       width: 900,
       height: 2501,
+    },
+    showcase: {
+      webp: "/products/miami-can-stage.webp",
+      jpg: "/products/miami-can-stage.jpg",
+      alt: "The Miami Groove can: matte white, with a black record and a peach label. Peach pineapple sparkling energy drink.",
+      width: 1600,
+      height: 2000,
     },
     accent: "#f6d2ab",
   },
