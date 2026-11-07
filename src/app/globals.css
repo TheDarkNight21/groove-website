@@ -921,16 +921,16 @@ body {
 
 .gallery {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.5rem;
   min-width: 0;
 }
 
-/* The tile's height: on phones the tile and its dots take the height the single can did
-   (52svh), so the packs, the total and Apple Pay stay on the first screen. Sizes are
+/* The tile's height: on phones the tile, its caption and its dots take the height the
+   single can did (52svh), so the packs, the total and Apple Pay stay on the first screen. Sizes are
    explicit: WebKit measures a scroll strip's natural width as all its photos side by
    side, which pushed the arrows and dots off an iPhone's screen. */
 .gallery {
-  --tile-h: calc(min(52svh, 34rem) - 2.5rem);
+  --tile-h: calc(min(52svh, 34rem) - 3.5rem);
   --arrow: 2.25rem;
   --lane: 0rem;
 }
@@ -1016,9 +1016,8 @@ body {
   pointer-events: none;
 }
 
-/* The caption shows from tablets up; on a phone the dots are enough. */
+/* The photo's line, under it at every size. */
 .gallery-caption {
-  display: none;
   text-align: center;
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
@@ -1031,21 +1030,22 @@ body {
   justify-content: center;
   gap: 0.25rem;
 }
+/* Small dots, each in a 24 px tap target. */
 .gallery-dot {
   display: grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 999px;
   cursor: pointer;
 }
 .gallery-dot::before {
   content: "";
-  width: 0.4375rem;
-  height: 0.4375rem;
+  width: 0.3125rem;
+  height: 0.3125rem;
   border-radius: 999px;
   background: var(--foreground);
-  opacity: 0.18;
+  opacity: 0.2;
   transition: opacity 200ms var(--ease-settle), transform 200ms var(--ease-settle);
 }
 .gallery-dot[aria-current="true"]::before {
@@ -1071,9 +1071,6 @@ body {
   .gallery {
     --tile-h: min(52svh, 52rem);
     --arrow: 2.75rem;
-  }
-  .gallery-caption {
-    display: block;
   }
   .gallery-track {
     border-radius: 1.5rem;
