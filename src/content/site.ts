@@ -8,6 +8,9 @@ export const SITE = {
   tagline: "Energy for the flow state.",
   description:
     "Groove is a premium sparkling energy drink for creators and people devoted to their craft.",
+  // The hero under the headline: the problem, then Groove. The story and the caffeine live further down.
+  pitch:
+    "Most energy drinks are far more acidic than coffee, and hard on your teeth. Groove is a sparkling energy drink designed to be gentler on enamel.",
   status: "Pre-orders open.",
   social: [
     {
