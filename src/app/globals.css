@@ -267,16 +267,34 @@ body {
 .social .eyebrow {
   color: var(--muted);
 }
+/* Follow Groove: one line, then each account (handle, and the app it opens). */
+.follow {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+}
+.follow .eyebrow {
+  color: var(--muted);
+}
+.follow-link {
+  display: grid;
+  text-underline-offset: 0.3em;
+}
+.follow-link + .follow-link {
+  margin-top: 0.5rem;
+}
+.follow-link:hover > span:first-child {
+  text-decoration: underline;
+}
 /* Which app the link opens, small and grey under the handle. */
 .social-app {
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   color: var(--muted);
 }
-/* On /thanks: the one account to follow, under the refund promise. */
+/* On /thanks: under the refund promise. */
 .thanks-follow {
   margin-top: 1.5rem;
-  justify-items: start;
 }
 
 .not-found {

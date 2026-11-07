@@ -13,10 +13,9 @@ describe("SITE.social", () => {
       expect(url.pathname, s.handle).toBe(s.app === "TikTok" ? `/@${name}` : `/${name}`);
     }
   });
-  it("leads with the TikTok, the account /thanks asks buyers to follow", () => {
-    expect(SITE.social[0].app).toBe("TikTok");
-    expect(SITE.social[0].handle).toBe("@groove.drinks");
-    expect(SITE.social.map((s) => s.handle)).toContain("@drink.groove");
+  it("is Groove's two accounts, TikTok then Instagram, which post the same content", () => {
+    expect(SITE.social.map((s) => `${s.app} ${s.handle}`)).toEqual(["TikTok @groove.drinks", "Instagram @drink.groove"]);
+    expect(SITE.follow).toBe("Follow Groove");
   });
   it("lists every account once", () => {
     expect(new Set(SITE.social.map((s) => s.href)).size).toBe(SITE.social.length);

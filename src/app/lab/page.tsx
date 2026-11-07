@@ -3,7 +3,7 @@ import Link from "next/link";
 import { InquiryForm } from "@/components/InquiryForm";
 import { LAB } from "@/content/lab";
 import { SITE } from "@/content/site";
-import { SocialLink } from "@/components/SocialLink";
+import { FollowGroove } from "@/components/FollowGroove";
 
 // The root layout points canonical and the share URL at "/"; this page must say "/lab".
 export const metadata: Metadata = {
@@ -61,9 +61,7 @@ export default function Lab() {
       </section>
 
       <footer className="footer">
-        {SITE.social.map((social) => (
-          <SocialLink key={social.href} social={social} />
-        ))}
+        <FollowGroove />
         <Link href="/" className="social">
           <span className="eyebrow">{SITE.name}</span>
           <span>{LAB.backLink} →</span>
