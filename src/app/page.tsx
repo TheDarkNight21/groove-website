@@ -54,12 +54,15 @@ export default function Home() {
       {/* JSON can't close the script tag once "<" is escaped. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(STRUCTURED_DATA) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(PRODUCT_DATA) }} />
-      <div className="topline">
-        <span className="wordmark">{SITE.name}</span>
-        <span className="eyebrow">{SITE.status}</span>
-      </div>
+      {/* The first screen is the record and the pitch alone: the can waits below the fold. */}
+      <div className="first-screen">
+        <div className="topline">
+          <span className="wordmark">{SITE.name}</span>
+          <span className="eyebrow">{SITE.status}</span>
+        </div>
 
-      <Hero />
+        <Hero />
+      </div>
 
       {/* The first scroll answers "what is it?": the can. */}
       <section aria-labelledby="the-can" className="showcase">

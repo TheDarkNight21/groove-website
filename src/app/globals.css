@@ -118,12 +118,23 @@ body {
   letter-spacing: -0.03em;
 }
 
+/* The top line and the hero fill at least the whole first screen, on every size, so
+   nothing below them (the can) shows until you scroll. svh is the viewport with the
+   browser's bars showing, which is what a page loads into on a phone. */
+.first-screen {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* The hero takes the rest of the first screen and centres its content in it. */
 .hero {
   display: grid;
   gap: clamp(1.5rem, 6vw, 4rem);
   align-items: center;
+  align-content: center;
   padding-block: clamp(0.5rem, 4vh, 6rem) clamp(4rem, 12vh, 9rem);
-  min-height: min(52rem, calc(100svh - 5rem));
 }
 
 .hero-copy {
