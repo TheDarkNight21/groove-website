@@ -4,10 +4,10 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { StagePhoto } from "@/content/catalog";
 import { StagePicture } from "./StagePicture";
 
-// The product photos as one swipeable strip on the stage. Phones swipe one photo at a
-// time with dots below; tablets get thumbnails under the stage;
-// computers get a thumbnail rail beside it, clickable and arrow-key driven. The strip
-// is plain CSS scroll-snap, so it still swipes without JavaScript.
+// The product photos as a carousel, the way Apple's product pages do it: one photo at
+// a time, a round arrow on each side to step through, dots below for where you are.
+// Phones also swipe; keyboards use the arrow keys. The strip is plain CSS scroll-snap,
+// so it still swipes without JavaScript.
 export function ProductGallery({ images, name }: { images: readonly StagePhoto[]; name: string }) {
   const track = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -21,11 +21,8 @@ export function ProductGallery({ images, name }: { images: readonly StagePhoto[]
       frame = 0;
       const slides = Array.from(el.children) as HTMLElement[];
       const left = el.scrollLeft;
-      let best = 0;
-      slides.forEach((s, i) => {
-        if (Math.abs(s.offsetLeft - el.offsetLeft - left) < Math.abs(slides[best].offsetLeft - el.offsetLeft - left)) best = i;
-      });
-      setActive(best);
+      const distance = (s: HTMLElement) => Math.abs(s.offsetLeft - el.offsetLeft - left);
+      setActive(slides.reduce((best, s, i) => (distance(s) < distance(slides[best]) ? i : best), 0));
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -48,12 +45,14 @@ export function ProductGallery({ images, name }: { images: readonly StagePhoto[]
     el.scrollTo({ left, behavior: reduced ? "auto" : "smooth" });
     setActive(i);
   };
+  const last = images.length - 1;
+  const step = (by: -1 | 1) => show(Math.min(last, Math.max(0, active + by)));
 
   const onKey = (e: KeyboardEvent) => {
-    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-    if (!step) return;
+    const by = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!by) return;
     e.preventDefault();
-    show(Math.min(images.length - 1, Math.max(0, active + step)));
+    step(by);
   };
 
   return (
@@ -72,25 +71,38 @@ export function ProductGallery({ images, name }: { images: readonly StagePhoto[]
             </figure>
           ))}
         </div>
+        {/* At the ends the arrow that leads nowhere fades out and stops taking taps. */}
+        <button type="button" className="gallery-arrow gallery-arrow-prev" aria-label="Previous photo" disabled={active === 0} onClick={() => step(-1)}>
+          <Chevron flip />
+        </button>
+        <button type="button" className="gallery-arrow gallery-arrow-next" aria-label="Next photo" disabled={active === last} onClick={() => step(1)}>
+          <Chevron />
+        </button>
       </div>
       {/* The photo's line sits under the stage, never over the product. */}
       <p className="gallery-caption" aria-live="polite">
         {images[active].caption}
       </p>
-      <div className="gallery-thumbs" role="group" aria-label="Choose a photo">
+      <div className="gallery-dots" role="group" aria-label="Choose a photo">
         {images.map((image, i) => (
           <button
             key={image.webp}
             type="button"
-            className="gallery-thumb"
+            className="gallery-dot"
             aria-label={`Photo ${i + 1}: ${image.caption}`}
             aria-current={i === active ? "true" : undefined}
             onClick={() => show(i)}
-          >
-            <StagePicture photo={image} />
-          </button>
+          />
         ))}
       </div>
     </section>
+  );
+}
+
+function Chevron({ flip }: { flip?: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden style={flip ? { transform: "scaleX(-1)" } : undefined}>
+      <path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

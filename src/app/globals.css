@@ -916,7 +916,8 @@ body {
   }
 }
 
-/* ---------- The product gallery ---------- */
+/* ---------- The product gallery ----------
+   Apple's product-page carousel: one photo, a round arrow on each side, dots below. */
 
 .gallery {
   display: grid;
@@ -924,24 +925,39 @@ body {
   min-width: 0;
 }
 
-/* The stage the photos stand on. Phones: one rounded 4:5 tile centred on the page's
-   white (a full-width band showed the photo's edges as a seam); the strip snaps photo
-   to photo. */
+/* The stage is the photo's tile plus a lane on each side for its arrow, so the arrows
+   sit beside the photo, never over the product. On phones the lanes may use the page
+   gutter. */
+.gallery {
+  --arrow: 2.25rem;
+  --lane: calc(var(--arrow) + 0.375rem);
+}
 .gallery-stage {
   position: relative;
+  width: max-content;
+  max-width: calc(100% + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--lane);
+}
+@media (max-width: 639px) {
+  .gallery-stage {
+    margin-inline: calc(-1 * var(--gutter));
+    justify-self: center;
+  }
 }
 
+/* One 4:5 tile in the photos' grey. Phones: the tile and its dots take the height the
+   single can did (52svh), so the packs, the total and Apple Pay stay on the first
+   screen. The strip snaps photo to photo. */
 .gallery-track {
   display: flex;
+  height: calc(min(52svh, 34rem) - 2.5rem);
+  aspect-ratio: 4 / 5;
+  max-width: 100%;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  aspect-ratio: 4 / 5;
-  /* Phones: the photo and its dots take the height the single can did (52svh), so the
-     packs, the total and Apple Pay stay on the first screen. */
-  max-height: calc(min(52svh, 34rem) - 2.5rem);
-  margin-inline: auto;
   background: var(--photo-stage);
   border-radius: 1rem;
 }
@@ -950,12 +966,10 @@ body {
 }
 .gallery-track:focus-visible {
   outline: 2px solid var(--foreground);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
-/* Each photo is the whole frame; one at a time. */
 .gallery-slide {
-  position: relative;
   flex: 0 0 100%;
   margin: 0;
   scroll-snap-align: center;
@@ -969,7 +983,42 @@ body {
 }
 .gallery-slide img {
   object-fit: cover;
-  transition: transform 600ms var(--ease-settle);
+}
+
+/* Round arrows on the tile's edges, Apple's translucent grey with a dark chevron. */
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: var(--arrow);
+  height: var(--arrow);
+  border-radius: 999px;
+  background: rgb(210 210 215 / 0.64);
+  color: rgb(0 0 0 / 0.56);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: opacity 200ms var(--ease-settle), background-color 200ms var(--ease-settle), color 200ms var(--ease-settle);
+}
+.gallery-arrow-prev {
+  left: 0;
+}
+.gallery-arrow-next {
+  right: 0;
+}
+.gallery-arrow:hover {
+  background: rgb(223 223 227 / 0.72);
+  color: rgb(0 0 0 / 0.64);
+}
+.gallery-arrow:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+.gallery-arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* The caption shows from tablets up; on a phone the dots are enough. */
@@ -982,13 +1031,12 @@ body {
   color: var(--muted);
 }
 
-/* Phones: the thumbnails are dots. */
-.gallery-thumbs {
+.gallery-dots {
   display: flex;
   justify-content: center;
   gap: 0.25rem;
 }
-.gallery-thumb {
+.gallery-dot {
   display: grid;
   place-items: center;
   width: 1.75rem;
@@ -996,7 +1044,7 @@ body {
   border-radius: 999px;
   cursor: pointer;
 }
-.gallery-thumb::before {
+.gallery-dot::before {
   content: "";
   width: 0.4375rem;
   height: 0.4375rem;
@@ -1005,99 +1053,44 @@ body {
   opacity: 0.18;
   transition: opacity 200ms var(--ease-settle), transform 200ms var(--ease-settle);
 }
-.gallery-thumb[aria-current="true"]::before {
+.gallery-dot[aria-current="true"]::before {
   opacity: 1;
   transform: scale(1.15);
 }
-.gallery-thumb picture {
-  display: none;
-}
-.gallery-thumb:focus-visible {
+.gallery-dot:focus-visible {
   outline: 2px solid var(--foreground);
   outline-offset: 1px;
 }
 
-/* Tablets: a bigger 4:5 tile with rounded corners, and real thumbnails under it. */
+/* Tablets: a bigger tile with the caption under it. */
 @media (min-width: 640px) {
   .gallery-caption {
     display: block;
   }
-  .gallery-stage {
-    width: 100%;
-    max-width: calc(min(52svh, 52rem) * 0.8);
-    background: var(--photo-stage);
-    margin-inline: auto;
-    border-radius: 1.5rem;
-    overflow: hidden;
-  }
   .gallery-track {
-    max-height: none;
-    border-radius: 0;
+    height: min(52svh, 52rem);
+    border-radius: 1.5rem;
   }
-  .gallery-thumbs {
-    gap: 0.6rem;
-  }
-  /* Stage-coloured tiles, a black ring on the one showing. */
-  .gallery-thumb {
-    width: 4.25rem;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    background: var(--photo-stage);
-    outline: 1px solid transparent;
-    outline-offset: 2px;
-    opacity: 0.7;
-    transition: opacity 200ms var(--ease-settle), outline-color 200ms var(--ease-settle);
-  }
-  .gallery-thumb::before {
-    display: none;
-  }
-  .gallery-thumb picture,
-  .gallery-thumb img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .gallery-thumb:hover {
-    opacity: 0.85;
-  }
-  .gallery-thumb[aria-current="true"] {
-    opacity: 1;
-    outline: 2px solid var(--foreground);
-  }
-  .gallery-thumb:focus-visible {
-    outline: 2px solid var(--foreground);
-    outline-offset: 2px;
+  .gallery {
+    --arrow: 2.75rem;
+    --lane: calc(var(--arrow) + 1rem);
   }
 }
 
-/* Computers: the thumbnails stand in a rail beside the stage, and the whole gallery
-   stays in view while the checkout scrolls past. */
+/* Computers: the tile fills its column (no taller than the screen) and the whole
+   gallery stays in view while the checkout scrolls past. */
 @media (min-width: 900px) {
   .gallery {
     position: sticky;
     top: 1rem;
-    grid-template-columns: 4.25rem minmax(0, 1fr);
-    align-items: start;
-    gap: 1rem;
   }
   .gallery-stage {
-    grid-column: 2;
-    grid-row: 1;
-    max-width: calc((100svh - 4rem) * 0.8);
-    margin-inline: 0;
+    width: 100%;
+    max-width: calc((100svh - 7rem) * 0.8 + 2 * var(--lane));
   }
-  .gallery-caption {
-    grid-column: 2;
-    grid-row: 2;
-    text-align: left;
-  }
-  .gallery-thumbs {
-    grid-column: 1;
-    grid-row: 1;
-    flex-direction: column;
+  .gallery-track {
+    width: 100%;
+    height: auto;
   }
 }
 
