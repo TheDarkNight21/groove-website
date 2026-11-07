@@ -144,34 +144,11 @@ body {
   align-items: flex-start;
 }
 
-.hero-copy form:not(.preorder),
-.hero-copy .waitlist-link,
-.hero-copy .waitlist-done {
-  margin-top: 1.5rem;
-  max-width: 30rem;
-}
-
-/* Phones: record, headline, the problem and Groove's answer, then the waitlist link. */
-.hero-copy .lede {
-  order: 3;
-}
-.hero-copy form:not(.preorder),
-.hero-copy .waitlist-link,
-.hero-copy .waitlist-done {
-  order: 4;
-}
-
 @media (min-width: 900px) {
   .hero {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   }
   .hero-copy {
-    order: 0;
-  }
-  .hero-copy .lede,
-  .hero-copy form:not(.preorder),
-  .hero-copy .waitlist-link,
-  .hero-copy .waitlist-done {
     order: 0;
   }
 }
