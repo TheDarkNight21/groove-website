@@ -9,6 +9,7 @@ import { parseSessionId, thanksView, type ThanksView } from "@/lib/checkout/than
 import type { Result } from "@/lib/email";
 import { env } from "@/lib/orders/server";
 import { sessionSummaryOf, stripeClient } from "@/lib/orders/stripe";
+import { SocialLink } from "@/components/SocialLink";
 
 const { thanks } = PREORDER;
 
@@ -68,6 +69,7 @@ export default async function Thanks({ searchParams }: PageProps<"/thanks">) {
             </dl>
             <p className="thanks-ships">Ships {PREORDER.shipWindow}.</p>
             <p className="thanks-refund">{PREORDER.refund}</p>
+            <SocialLink social={SITE.social[0]} label={SITE.watch} className="thanks-follow" />
             <p className="thanks-note">{thanks.lede}</p>
             <Link href="/" className="not-found-link">
               {thanks.back} →

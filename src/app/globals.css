@@ -256,6 +256,8 @@ body {
 
 .social {
   display: grid;
+  /* Lines start at the top, so a two-line link lines up with the three-line ones. */
+  align-content: start;
   gap: 0.25rem;
   text-underline-offset: 0.3em;
 }
@@ -264,6 +266,17 @@ body {
 }
 .social .eyebrow {
   color: var(--muted);
+}
+/* Which app the link opens, small and grey under the handle. */
+.social-app {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+/* On /thanks: the one account to follow, under the refund promise. */
+.thanks-follow {
+  margin-top: 1.5rem;
+  justify-items: start;
 }
 
 .not-found {

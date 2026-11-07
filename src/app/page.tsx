@@ -9,6 +9,7 @@ import { PREORDER } from "@/content/preorder";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
 import { checkoutConfig } from "@/lib/checkout/config";
 import { formatUsd } from "@/lib/preorder";
+import { SocialLink } from "@/components/SocialLink";
 
 // The pull quote is the founders' line from WHY[0], set on its own.
 const PULL_QUOTE = "We learned that the hard way, with our own teeth.";
@@ -128,11 +129,8 @@ export default function Home() {
       </section>
 
       <footer className="footer">
-        {SITE.social.map(({ label, handle, href }) => (
-          <a key={href} href={href} target="_blank" rel="noopener noreferrer" className="social">
-            <span className="eyebrow">{label}</span>
-            <span>{handle} →</span>
-          </a>
+        {SITE.social.map((social) => (
+          <SocialLink key={social.href} social={social} />
         ))}
         <Link href={LAB.path} className="social">
           <span className="eyebrow">For brands</span>

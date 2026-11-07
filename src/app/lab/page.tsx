@@ -3,6 +3,7 @@ import Link from "next/link";
 import { InquiryForm } from "@/components/InquiryForm";
 import { LAB } from "@/content/lab";
 import { SITE } from "@/content/site";
+import { SocialLink } from "@/components/SocialLink";
 
 // The root layout points canonical and the share URL at "/"; this page must say "/lab".
 export const metadata: Metadata = {
@@ -60,11 +61,8 @@ export default function Lab() {
       </section>
 
       <footer className="footer">
-        {SITE.social.map(({ label, handle, href }) => (
-          <a key={href} href={href} target="_blank" rel="noopener noreferrer" className="social">
-            <span className="eyebrow">{label}</span>
-            <span>{handle} →</span>
-          </a>
+        {SITE.social.map((social) => (
+          <SocialLink key={social.href} social={social} />
         ))}
         <Link href="/" className="social">
           <span className="eyebrow">{SITE.name}</span>

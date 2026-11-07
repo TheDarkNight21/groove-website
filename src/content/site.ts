@@ -12,18 +12,32 @@ export const SITE = {
   pitch:
     "Most energy drinks are far more acidic than coffee, and hard on your teeth. Groove is a sparkling energy drink designed to be gentler on enamel.",
   status: "Pre-orders open.",
+  // Where to follow Groove, customers' accounts first (Steve, 2026-11-07): the footer of
+  // the homepage and the Lab lists them in this order, each naming its app. The first is
+  // also the one line on /thanks. Nothing in the top line or on /preorder: no exits
+  // before someone buys.
   social: [
     {
-      label: "Follow the build",
-      handle: "@building.groove",
-      href: "https://www.instagram.com/building.groove",
+      label: "Follow Groove",
+      handle: "@groove.drinks",
+      app: "TikTok",
+      href: "https://www.tiktok.com/@groove.drinks",
     },
     {
       label: "Get launch news",
       handle: "@drink.groove",
+      app: "Instagram",
       href: "https://www.instagram.com/drink.groove",
     },
+    {
+      label: "Follow the build",
+      handle: "@building.groove",
+      app: "Instagram",
+      href: "https://www.instagram.com/building.groove",
+    },
   ],
+  // On /thanks, under the refund promise: someone who just paid wants to watch it get made.
+  watch: "Watch it get made",
 } as const;
 
 export const SHORT_VERSION =
