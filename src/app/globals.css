@@ -1188,3 +1188,59 @@ body {
   line-height: 1.6;
   color: var(--muted);
 }
+
+/* ---------- Small phones: the Pre-order button on the first screen ----------
+   Last in the file, so these win over the record and hero rules above. */
+
+/* Short phones held upright (an iPhone SE in Safari is about 375x548, the first SE
+   320x460): a smaller record and a two-line headline, so the Pre-order button is on
+   the first screen. Taller phones (an iPhone 15 is ~659 in Safari) keep the layout above. */
+@media (orientation: portrait) and (max-width: 899px) and (max-height: 600px) {
+  .topline {
+    padding-block: clamp(0.875rem, 2.5vh, 1.25rem);
+  }
+  .hero {
+    gap: clamp(0.75rem, 3svh, 1.5rem);
+    padding-block: clamp(0.25rem, 2svh, 1rem) clamp(1.5rem, 6svh, 3rem);
+  }
+  .record-unit {
+    gap: 0.625rem;
+  }
+  .record-shell {
+    width: min(62vw, 34rem, 30svh);
+  }
+  .display {
+    font-size: clamp(2rem, 10vw, 2.5rem);
+  }
+  .hero-copy .preorder {
+    margin-top: clamp(0.875rem, 3svh, 1.5rem);
+  }
+}
+
+/* Phones held sideways: the record beside the words, as on a desktop, so the
+   headline and the Pre-order button fit in a screen only ~270-430 px tall. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .topline {
+    padding-block: 0.75rem;
+  }
+  .hero {
+    grid-template-columns: auto minmax(0, 1fr);
+    /* Both columns start at the top: the copy runs on below the fold, the record and
+       the button stay on the first screen. */
+    align-items: start;
+    gap: clamp(1.5rem, 5vw, 3rem);
+    padding-block: 0.25rem 1.5rem;
+  }
+  .record-shell {
+    width: min(40vw, 58svh);
+  }
+  .record-unit {
+    gap: 0.5rem;
+  }
+  .display {
+    font-size: clamp(1.75rem, 11svh, 2.5rem);
+  }
+  .hero-copy .preorder {
+    margin-top: 0.875rem;
+  }
+}
