@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { preconnect, preload } from "react-dom";
 import { CheckoutUnavailable } from "@/components/checkout/CheckoutUnavailable";
 import { PreorderCheckout } from "@/components/checkout/PreorderCheckout";
-import { CanImage } from "@/components/product/CanImage";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { CATALOG } from "@/content/catalog";
 import { PREORDER, PREORDER_PROMISE } from "@/content/preorder";
 import { SITE } from "@/content/site";
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 const perCanCents = PREORDER.usdPerCan * 100;
 
-// The can first, then the checkout. Keys are read per request, so a missing one
+// The photos first, then the checkout. Keys are read per request, so a missing one
 // shows the unavailable state rather than a page frozen at build time.
 export default async function Preorder({ searchParams }: PageProps<"/preorder">) {
   await connection();
@@ -45,7 +45,7 @@ export default async function Preorder({ searchParams }: PageProps<"/preorder">)
       </div>
       {product ? (
         <div className="buy">
-          <CanImage image={product.image} className="buy-can" eager />
+          <ProductGallery images={product.gallery} name={product.name} />
           <div className="buy-panel">
             <h1 className="buy-name">{product.name}</h1>
             <p className="buy-flavor">

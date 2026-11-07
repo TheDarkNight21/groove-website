@@ -20,16 +20,41 @@ export type ProductImage = {
 };
 
 // A photo of the product on the grey studio stage (Blender Cycles, the same shoot as
-// the can section's anchors on the scroll-hero branch), 4:5, served as webp with a
-// jpeg behind it. The source render and its encoder are on the grey-renders branch
-// (assets/products/can.png, scripts/product-shots.mts).
+// the can section's anchors: scripts/render-anchors.mts and PRODUCT_SHOTS on the
+// scroll-hero branch). Its 4:5 source render is committed in assets/products/ and
+// `npm run stage-photos` scales and encodes it into public/products/<name>.webp/.jpg.
 export type StagePhoto = {
+  readonly name: string;
+  // The render it is made from, in assets/products/.
+  readonly source: string;
   readonly webp: string;
   readonly jpg: string;
   readonly alt: string;
+  // One line under the photo in the gallery, in the site's voice.
+  readonly caption: string;
   readonly width: number;
   readonly height: number;
 };
+
+// Every stage photo is this size (4:5), so the gallery never changes height.
+export const STAGE_PHOTO_SIZE = { width: 1600, height: 2000 } as const;
+
+const stagePhoto = (name: string, source: string, alt: string, caption: string): StagePhoto => ({
+  name,
+  source,
+  webp: `/products/${name}.webp`,
+  jpg: `/products/${name}.jpg`,
+  alt,
+  caption,
+  ...STAGE_PHOTO_SIZE,
+});
+
+const MIAMI_CAN = stagePhoto(
+  "miami-can-stage",
+  "can.png",
+  "The Miami Groove can: matte white, with a black record and a peach label. Peach pineapple sparkling energy drink.",
+  "The Miami Groove. Peach pineapple.",
+);
 
 export type Product = {
   readonly sku: string;
@@ -42,6 +67,9 @@ export type Product = {
   // The one photo on the homepage, under the hero: the can on the stage. The line
   // beside it says it comes as a 12-pack.
   readonly showcase: StagePhoto;
+  // The photos on /preorder, in order: whole can, closer, closest. The box joins once
+  // a render of it is good enough (2026-11-06).
+  readonly gallery: readonly [StagePhoto, ...StagePhoto[]];
   // The flavor's color, sampled from the record rings on its can render. Used once,
   // as the small marker by the flavor name on /preorder; buttons stay black.
   readonly accent: string;
@@ -62,13 +90,22 @@ export const CATALOG: readonly Product[] = [
       width: 900,
       height: 2501,
     },
-    showcase: {
-      webp: "/products/miami-can-stage.webp",
-      jpg: "/products/miami-can-stage.jpg",
-      alt: "The Miami Groove can: matte white, with a black record and a peach label. Peach pineapple sparkling energy drink.",
-      width: 1600,
-      height: 2000,
-    },
+    showcase: MIAMI_CAN,
+    gallery: [
+      MIAMI_CAN,
+      stagePhoto(
+        "miami-record-stage",
+        "can-record.png",
+        "Close up of the can's record: black grooves with peach rings, and “Energy for the flow state” around the label.",
+        "Energy for the flow state.",
+      ),
+      stagePhoto(
+        "miami-line-stage",
+        "can-line.png",
+        "The back of the can, close: two lines of small black type, “For the ones who lose track of time.”",
+        "For the ones who lose track of time.",
+      ),
+    ],
     accent: "#f6d2ab",
   },
 ];

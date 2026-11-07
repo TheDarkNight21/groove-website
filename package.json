@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "brand-assets": "node scripts/brand-assets.mts",
+    "stage-photos": "node scripts/stage-photos.mts",
     "stripe-catalog": "node scripts/stripe-catalog.mts"
   },
   "dependencies": {

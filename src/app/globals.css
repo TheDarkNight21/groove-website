@@ -916,6 +916,191 @@ body {
   }
 }
 
+/* ---------- The product gallery ---------- */
+
+.gallery {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* The stage the photos stand on. Phones: one rounded 4:5 tile centred on the page's
+   white (a full-width band showed the photo's edges as a seam); the strip snaps photo
+   to photo. */
+.gallery-stage {
+  position: relative;
+}
+
+.gallery-track {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  aspect-ratio: 4 / 5;
+  /* Phones: the photo and its dots take the height the single can did (52svh), so the
+     packs, the total and Apple Pay stay on the first screen. */
+  max-height: calc(min(52svh, 34rem) - 2.5rem);
+  margin-inline: auto;
+  background: var(--photo-stage);
+  border-radius: 1rem;
+}
+.gallery-track::-webkit-scrollbar {
+  display: none;
+}
+.gallery-track:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: -2px;
+}
+
+/* Each photo is the whole frame; one at a time. */
+.gallery-slide {
+  position: relative;
+  flex: 0 0 100%;
+  margin: 0;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.gallery-slide picture,
+.gallery-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gallery-slide img {
+  object-fit: cover;
+  transition: transform 600ms var(--ease-settle);
+}
+
+/* The caption shows from tablets up; on a phone the dots are enough. */
+.gallery-caption {
+  display: none;
+  text-align: center;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Phones: the thumbnails are dots. */
+.gallery-thumbs {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+.gallery-thumb {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.gallery-thumb::before {
+  content: "";
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 999px;
+  background: var(--foreground);
+  opacity: 0.18;
+  transition: opacity 200ms var(--ease-settle), transform 200ms var(--ease-settle);
+}
+.gallery-thumb[aria-current="true"]::before {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.gallery-thumb picture {
+  display: none;
+}
+.gallery-thumb:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+/* Tablets: a bigger 4:5 tile with rounded corners, and real thumbnails under it. */
+@media (min-width: 640px) {
+  .gallery-caption {
+    display: block;
+  }
+  .gallery-stage {
+    width: 100%;
+    max-width: calc(min(52svh, 52rem) * 0.8);
+    background: var(--photo-stage);
+    margin-inline: auto;
+    border-radius: 1.5rem;
+    overflow: hidden;
+  }
+  .gallery-track {
+    max-height: none;
+    border-radius: 0;
+  }
+  .gallery-thumbs {
+    gap: 0.6rem;
+  }
+  /* Stage-coloured tiles, a black ring on the one showing. */
+  .gallery-thumb {
+    width: 4.25rem;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: var(--photo-stage);
+    outline: 1px solid transparent;
+    outline-offset: 2px;
+    opacity: 0.7;
+    transition: opacity 200ms var(--ease-settle), outline-color 200ms var(--ease-settle);
+  }
+  .gallery-thumb::before {
+    display: none;
+  }
+  .gallery-thumb picture,
+  .gallery-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gallery-thumb:hover {
+    opacity: 0.85;
+  }
+  .gallery-thumb[aria-current="true"] {
+    opacity: 1;
+    outline: 2px solid var(--foreground);
+  }
+  .gallery-thumb:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+}
+
+/* Computers: the thumbnails stand in a rail beside the stage, and the whole gallery
+   stays in view while the checkout scrolls past. */
+@media (min-width: 900px) {
+  .gallery {
+    position: sticky;
+    top: 1rem;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+  }
+  .gallery-stage {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: calc((100svh - 4rem) * 0.8);
+    margin-inline: 0;
+  }
+  .gallery-caption {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+  }
+  .gallery-thumbs {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+  }
+}
+
 /* The flavor's one touch of color. */
 .flavor-marker {
   display: inline-block;
