@@ -144,11 +144,6 @@ body {
   align-items: flex-start;
 }
 
-.hero-copy .preorder {
-  margin-top: clamp(1.5rem, 4vh, 2.5rem);
-  max-width: 30rem;
-}
-
 .hero-copy form:not(.preorder),
 .hero-copy .waitlist-link,
 .hero-copy .waitlist-done {
@@ -156,8 +151,7 @@ body {
   max-width: 30rem;
 }
 
-/* Phones: record, headline, then the pre-order button, so it sits above the fold.
-   The description follows it, and the waitlist link comes last. */
+/* Phones: record, headline, the problem and Groove's answer, then the waitlist link. */
 .hero-copy .lede {
   order: 3;
 }
