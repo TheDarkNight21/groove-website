@@ -70,8 +70,10 @@ export type Product = {
   // The photos on /preorder, in order: whole can, closer, closest. The box joins once
   // a render of it is good enough (2026-11-06).
   readonly gallery: readonly [StagePhoto, ...StagePhoto[]];
-  // The flavor's color, sampled from the record rings on its can render. Used once,
-  // as the small marker by the flavor name on /preorder; buttons stay black.
+  // The flavor's color: the orange of the record's label as it reads in the stage
+  // photos beside it (#B26C41, sampled from can.png; the printed ink is PANTONE 1565 C,
+  // #FFA06A on screens, darkened by the studio light). Used once, as the small marker
+  // by the flavor name on /preorder; buttons stay black.
   readonly accent: string;
 };
 
@@ -106,7 +108,7 @@ export const CATALOG: readonly Product[] = [
         "For the ones who lose track of time.",
       ),
     ],
-    accent: "#f6d2ab",
+    accent: "#b26c41",
   },
 ];
 

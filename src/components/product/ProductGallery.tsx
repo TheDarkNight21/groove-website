@@ -11,25 +11,40 @@ import { StagePicture } from "./StagePicture";
 export function ProductGallery({ images, name }: { images: readonly StagePhoto[]; name: string }) {
   const track = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  // The photo an arrow or a dot is moving to. While it is set, the slide's in-between
+  // positions don't count: the caption and dots go straight to it and stay there
+  // (reading them mid-slide flashed the old caption, then the one passed on the way).
+  const heading = useRef<number | null>(null);
 
   // The photo nearest the strip's left edge is the one being looked at.
   useEffect(() => {
     const el = track.current;
     if (!el) return;
     let frame = 0;
+    const nearest = () => {
+      const slides = Array.from(el.children) as HTMLElement[];
+      const distance = (s: HTMLElement) => Math.abs(s.offsetLeft - el.offsetLeft - el.scrollLeft);
+      return slides.reduce((best, s, i) => (distance(s) < distance(slides[best]) ? i : best), 0);
+    };
     const update = () => {
       frame = 0;
-      const slides = Array.from(el.children) as HTMLElement[];
-      const left = el.scrollLeft;
-      const distance = (s: HTMLElement) => Math.abs(s.offsetLeft - el.offsetLeft - left);
-      setActive(slides.reduce((best, s, i) => (distance(s) < distance(slides[best]) ? i : best), 0));
+      const now = nearest();
+      if (heading.current === null) setActive(now);
+      else if (now === heading.current) heading.current = null;
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
+    // Settled: whatever is showing is the truth, even if a swipe cut the slide short.
+    const onEnd = () => {
+      heading.current = null;
+      setActive(nearest());
+    };
     el.addEventListener("scroll", onScroll, { passive: true });
+    el.addEventListener("scrollend", onEnd);
     return () => {
       el.removeEventListener("scroll", onScroll);
+      el.removeEventListener("scrollend", onEnd);
       cancelAnimationFrame(frame);
     };
   }, []);
@@ -42,8 +57,9 @@ export function ProductGallery({ images, name }: { images: readonly StagePhoto[]
     // Centre the slide in the track, where centre snapping will hold it, so the target
     // and the snap point agree and nothing pulls back after the scroll.
     const left = slide.offsetLeft - el.offsetLeft - (el.clientWidth - slide.clientWidth) / 2;
-    el.scrollTo({ left, behavior: reduced ? "auto" : "smooth" });
+    heading.current = i;
     setActive(i);
+    el.scrollTo({ left, behavior: reduced ? "auto" : "smooth" });
   };
   const last = images.length - 1;
   const step = (by: -1 | 1) => show(Math.min(last, Math.max(0, active + by)));
