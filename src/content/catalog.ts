@@ -19,9 +19,10 @@ export type ProductImage = {
   readonly height: number;
 };
 
-// A photo of the product on the grey studio stage (Blender Cycles, the same shoot as
-// the can section's anchors: scripts/render-anchors.mts and PRODUCT_SHOTS on the
-// scroll-hero branch). Its 4:5 source render is committed in assets/products/ and
+// A photo of the product on the grey studio stage (Blender Cycles). The can photos are
+// the same shoot as the can section's anchors (scripts/render-anchors.mts and
+// PRODUCT_SHOTS on the scroll-hero branch); the pack photo is groove-pack's `pack` shot
+// (src/render/shots.ts, box-renders e04b58a). Each 4:5 source render is committed in assets/products/ and
 // `npm run stage-photos` scales and encodes it into public/products/<name>.webp/.jpg.
 export type StagePhoto = {
   readonly name: string;
@@ -49,6 +50,14 @@ const stagePhoto = (name: string, source: string, alt: string, caption: string):
   ...STAGE_PHOTO_SIZE,
 });
 
+// The 12-pack's box at three-quarter with a can standing beside it: what a pre-order buys.
+const MIAMI_PACK = stagePhoto(
+  "miami-pack-stage",
+  "pack.png",
+  "The Miami Groove 12-pack: a white box with a black record on its side, and a white can beside it with MIAMI round the top and a peach tab.",
+  "Twelve cans to a box.",
+);
+
 const MIAMI_CAN = stagePhoto(
   "miami-can-stage",
   "can.png",
@@ -64,11 +73,11 @@ export type Product = {
   readonly lookupKey: string;
   readonly weightOz: number;
   readonly image: ProductImage;
-  // The one photo on the homepage, under the hero: the can on the stage. The line
-  // beside it says it comes as a 12-pack.
+  // The one photo on the homepage, under the hero, beside the pre-order button: the
+  // 12-pack, box and can (2026-11-10). The line beside it says what's in the box.
   readonly showcase: StagePhoto;
-  // The photos on /preorder, in order: whole can, closer, closest. The box joins once
-  // a render of it is good enough (2026-11-06).
+  // The photos on /preorder, in order: the pack (the homepage's photo), then the can
+  // whole, closer, closest. The box joined on 2026-11-10.
   readonly gallery: readonly [StagePhoto, ...StagePhoto[]];
   // The flavor's color: the orange of the record's label as it reads in the stage
   // photos beside it (#B26C41, sampled from can.png; the printed ink is PANTONE 1565 C,
@@ -92,8 +101,9 @@ export const CATALOG: readonly Product[] = [
       width: 900,
       height: 2501,
     },
-    showcase: MIAMI_CAN,
+    showcase: MIAMI_PACK,
     gallery: [
+      MIAMI_PACK,
       MIAMI_CAN,
       stagePhoto(
         "miami-record-stage",

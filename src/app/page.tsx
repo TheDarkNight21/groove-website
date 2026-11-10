@@ -65,7 +65,7 @@ export default function Home() {
         <Hero />
       </div>
 
-      {/* The first scroll answers "what is it?": the can. */}
+      {/* The first scroll answers "what is it?": the 12-pack, box and can. */}
       <section aria-labelledby="the-can" className="showcase">
         <StagePicture photo={CATALOG[0].showcase} className="showcase-shot" />
         <div className="showcase-copy">
