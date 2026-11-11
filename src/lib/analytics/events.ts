@@ -232,3 +232,26 @@ export const optChoice = (search: string): OptChoice | undefined => {
   const v = new URLSearchParams(search).get(OPT_PARAM);
   return v === "off" || v === "on" ? v : undefined;
 };
+
+// ---- What never leaves the site ----
+
+// The admin shows customers' names and addresses as page text, which input masking
+// doesn't cover: nothing under these paths is recorded at all, events or replays.
+export const PRIVATE_PATHS = ["/admin", "/api/admin"] as const;
+export const isPrivatePath = (pathname: string): boolean =>
+  PRIVATE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
+// Query values that open something: the Stripe session id on /thanks shows that order's
+// summary to whoever holds it. They are blanked in every URL an event carries.
+export const SECRET_PARAMS = ["session_id"] as const;
+const SCRUBBED = "removed";
+
+export const scrubUrl = (value: string): string => {
+  if (!SECRET_PARAMS.some((p) => value.includes(`${p}=`))) return value;
+  const pattern = new RegExp(`([?&#](?:${SECRET_PARAMS.join("|")})=)[^&#]*`, "g");
+  return value.replace(pattern, `$1${SCRUBBED}`);
+};
+
+// Every string in an event's properties, scrubbed; everything else untouched.
+export const scrubProperties = <T extends Readonly<Record<string, unknown>>>(properties: T): T =>
+  Object.fromEntries(Object.entries(properties).map(([k, v]) => [k, typeof v === "string" ? scrubUrl(v) : v])) as T;

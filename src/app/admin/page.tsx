@@ -100,7 +100,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Se
 
   if (!authed) {
     return (
-      <main className="page">
+      <main className="page ph-no-capture">
         {head}
         <SignIn failed={q.error === "token"} />
       </main>
@@ -110,7 +110,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Se
   const s = adminStore();
   if (!s.ok) {
     return (
-      <main className="page">
+      <main className="page ph-no-capture">
         {head}
         <p className="admin-problem">Not configured: set {s.error.missing.join(", ")}.</p>
       </main>
@@ -121,7 +121,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Se
   const orders = await s.value.store.list({ livemode: s.value.livemode, ...(status ? { status } : {}) });
 
   return (
-    <main className="page admin">
+    <main className="page admin ph-no-capture">
       {head}
       <section className="admin-head">
         <h1 className="display">Orders</h1>

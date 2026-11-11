@@ -7,6 +7,9 @@ import {
   MIN_SPIN_DEG,
   failureCode,
   initialSteps,
+  isPrivatePath,
+  scrubProperties,
+  scrubUrl,
   optChoice,
   orderPaidCapture,
   spinSummary,
@@ -328,5 +331,38 @@ describe("captureSender", () => {
       throw new Error("offline");
     }) as typeof fetch);
     expect(await dead(capture, at)).toEqual({ ok: false, error: { kind: "network" } });
+  });
+});
+
+describe("what never leaves the site", () => {
+  it("the admin and its API are private; the shop is not", () => {
+    for (const p of ["/admin", "/admin/", "/admin/orders/7/", "/api/admin/export/"]) expect(isPrivatePath(p)).toBe(true);
+    for (const p of ["/", "/preorder/", "/thanks/", "/administer/", "/lab/"]) expect(isPrivatePath(p)).toBe(false);
+  });
+
+  it("blanks the Stripe session id wherever it sits in a URL and keeps the rest", () => {
+    expect(scrubUrl("https://www.groovedrinks.com/thanks/?session_id=cs_live_a1B2c3")).toBe("https://www.groovedrinks.com/thanks/?session_id=removed");
+    expect(scrubUrl("/thanks/?utm_source=ig&session_id=cs_test_x&sku=miami-12pk#top")).toBe("/thanks/?utm_source=ig&session_id=removed&sku=miami-12pk#top");
+  });
+
+  it("no session id survives scrubbing, whatever surrounds it", () => {
+    fc.assert(
+      fc.property(fc.webUrl(), fc.stringMatching(/^cs_(test|live)_[A-Za-z0-9]{6,40}$/), fc.constantFrom("?", "&"), (url, id, joiner) => {
+        const sep = url.includes("?") ? "&" : joiner === "&" ? "?" : joiner;
+        expect(scrubUrl(`${url}${sep}session_id=${id}`)).not.toContain(id);
+      }),
+    );
+  });
+
+  it("leaves URLs without a secret exactly as they were", () => {
+    fc.assert(fc.property(fc.webUrl({ withQueryParameters: true }), (url) => url.includes("session_id=") || scrubUrl(url) === url));
+  });
+
+  it("scrubs every string property and leaves other values alone", () => {
+    expect(scrubProperties({ $current_url: "https://x.test/thanks/?session_id=cs_test_abc", packs: 2, flags: ["a"] })).toEqual({
+      $current_url: "https://x.test/thanks/?session_id=removed",
+      packs: 2,
+      flags: ["a"],
+    });
   });
 });
