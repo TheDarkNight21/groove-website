@@ -1,5 +1,6 @@
 import { CATALOG, productBySku } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
+import { visitorFromBody } from "@/lib/analytics/events";
 import { checkoutConfig, describeConfigProblem } from "@/lib/checkout/config";
 import { openCheckout, stripeClient, type PriceIds } from "@/lib/orders/stripe";
 
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
     product,
     maxQuantity: PREORDER.maxPacks,
     ui: { kind: "elements", returnUrl: thanksUrl(origin, PREORDER.thanks.path) },
+    visitor: visitorFromBody(body),
   }, priceIds);
   if (!opened.ok) return fail(502, opened.error);
   if (opened.value.kind !== "elements") return fail(502, "expected an elements session");

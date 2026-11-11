@@ -44,7 +44,20 @@ describe("webhook signature", () => {
     const body = eventBody("checkout.session.completed", session());
     const d = deps();
     const r = await handleWebhook(body, sign(body), d);
-    expect(r).toEqual({ ok: true, value: { kind: "recorded", sessionId: "cs_test_abc" } });
+    expect(r).toEqual({
+      ok: true,
+      value: {
+        kind: "recorded",
+        sessionId: "cs_test_abc",
+        // No visitor on the session: the sale is filed under the Stripe session.
+        paid: {
+          name: "order_paid",
+          properties: { skus: [CATALOG[0].sku], packs: 2, amount_cents: 7200, currency: "usd", livemode: false },
+          distinctId: "cs_test_abc",
+          sessionId: undefined,
+        },
+      },
+    });
     expect(webhookStatus(r)).toBe(200);
     const [order] = d.store.all();
     expect(order).toMatchObject({
@@ -160,5 +173,33 @@ describe("webhook logging", () => {
     const line = webhookErrorSummary({ kind: "store", error: { kind: "upstream", status: 400, body: "Failing row contains (Ada Lovelace, ada@example.com)" } });
     expect(line).toBe("store: upstream 400");
     expect(line).not.toContain("Ada");
+  });
+});
+
+describe("the order's analytics event", () => {
+  const visited = session({ metadata: { sku: CATALOG[0].sku, ph_distinct_id: "0190aaaa-visitor", ph_session_id: "0190bbbb-session" } });
+
+  it("belongs to the visit that opened the checkout", async () => {
+    const body = eventBody("checkout.session.completed", visited);
+    const r = await handleWebhook(body, sign(body), deps());
+    expect(r.ok && r.value.kind === "recorded" && r.value.paid).toMatchObject({
+      name: "order_paid",
+      distinctId: "0190aaaa-visitor",
+      sessionId: "0190bbbb-session",
+    });
+  });
+
+  it("is produced once: Stripe retrying the same event is a duplicate with nothing to send", async () => {
+    const body = eventBody("checkout.session.completed", visited);
+    const d = deps();
+    await handleWebhook(body, sign(body), d);
+    const again = await handleWebhook(body, sign(body), d);
+    expect(again).toEqual({ ok: true, value: { kind: "duplicate", sessionId: "cs_test_abc" } });
+  });
+
+  it("ignores metadata that isn't an id rather than failing the order", async () => {
+    const body = eventBody("checkout.session.completed", session({ metadata: { ph_distinct_id: "not an id <b>" } }));
+    const r = await handleWebhook(body, sign(body), deps());
+    expect(r.ok && r.value.kind === "recorded" && r.value.paid.distinctId).toBe("cs_test_abc");
   });
 });

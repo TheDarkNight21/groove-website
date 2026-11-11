@@ -1,4 +1,6 @@
 import { CATALOG } from "@/content/catalog";
+import { analyticsConfig } from "@/lib/analytics/config";
+import { captureErrorSummary, captureSender } from "@/lib/analytics/server";
 import { env, missingEnvResponse } from "@/lib/orders/server";
 import { supabaseOrderStore } from "@/lib/orders/store";
 import { lineItemsOf, stripeClient, verifier } from "@/lib/orders/stripe";
@@ -20,7 +22,17 @@ export async function POST(request: Request) {
     catalog: CATALOG,
   });
 
+  // Tell analytics about a newly recorded order. The order is already saved: a failure
+  // here is logged and Stripe still hears 200, so analytics can never cost an order.
+  if (result.ok && result.value.kind === "recorded") {
+    const analytics = analyticsConfig({ key: process.env.NEXT_PUBLIC_POSTHOG_KEY, host: process.env.NEXT_PUBLIC_POSTHOG_HOST });
+    if (analytics) {
+      const sent = await captureSender(analytics)(result.value.paid, new Date());
+      if (!sent.ok) console.error("webhook: order_paid not recorded in analytics:", captureErrorSummary(sent.error));
+    }
+  }
+
   if (result.ok) console.info("webhook:", result.value.kind, "reason" in result.value ? result.value.reason : result.value.sessionId);
   else console.error("webhook failed:", webhookErrorSummary(result.error));
-  return Response.json(result.ok ? result.value : { error: result.error.kind }, { status: webhookStatus(result) });
+  return Response.json(result.ok ? { kind: result.value.kind } : { error: result.error.kind }, { status: webhookStatus(result) });
 }

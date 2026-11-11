@@ -15,6 +15,8 @@ import {
   touchIntent,
   type Turntable,
 } from "@/lib/turntable";
+import { track } from "@/lib/analytics/client";
+import { pointerKind, spinSummary, type PointerKind } from "@/lib/analytics/events";
 import { RECORD, RINGS, labelPath, labelTextLength } from "@/lib/record-art";
 
 type Props = { readonly joined: boolean };
@@ -28,6 +30,9 @@ export function Record({ joined }: Props) {
   const target = useRef(0);
   // A touch that hasn't yet shown whether it's a spin or a page scroll.
   const pending = useRef<{ x: number; y: number; t: number; angle: number } | null>(null);
+  // The hand on the record right now: when it landed and where the record was, so
+  // letting go can report how far and how hard it was spun.
+  const held = useRef<{ pointer: PointerKind; t: number; angle: number } | null>(null);
 
   // Motor target follows join state and the reduced-motion preference.
   useEffect(() => {
@@ -82,6 +87,7 @@ export function Record({ joined }: Props) {
     // Mouse and pen: the hand lands on the record and stops it, instantly.
     e.currentTarget.setPointerCapture(e.pointerId);
     state.current = grab(state.current, angleOf(e), t);
+    held.current = { pointer: pointerKind(e.pointerType), t, angle: state.current.angle };
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -94,6 +100,7 @@ export function Record({ joined }: Props) {
       if (intent === "scroll") return;
       e.currentTarget.setPointerCapture(e.pointerId);
       state.current = grab(state.current, touch.angle, touch.t);
+      held.current = { pointer: "touch", t: touch.t, angle: state.current.angle };
     }
     if (!state.current.drag) return;
     state.current = move(state.current, angleOf(e), t);
@@ -101,7 +108,21 @@ export function Record({ joined }: Props) {
 
   const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
     pending.current = null;
-    const released = release(state.current, e.timeStamp / 1000);
+    const t = e.timeStamp / 1000;
+    const hold = held.current;
+    held.current = null;
+    const released = release(state.current, t);
+    if (hold && state.current.drag) {
+      const spun = spinSummary({
+        pointer: hold.pointer,
+        grabbedAt: hold.t,
+        releasedAt: t,
+        grabAngle: hold.angle,
+        releaseAngle: released.angle,
+        releaseVelocity: released.velocity,
+      });
+      if (spun) track(spun);
+    }
     // Reduced motion: the record stays where it was put instead of coasting.
     state.current = reduced.current ? { ...released, velocity: 0 } : released;
   };

@@ -73,3 +73,17 @@ describe("openedFrom", () => {
     );
   });
 });
+
+describe("checkoutParams and the visitor", () => {
+  it("puts the visitor's ids beside the sku, so the webhook can tie the order to the visit", () => {
+    const p = checkoutParams(
+      { product, maxQuantity: 10, ui: elements, visitor: { distinctId: "0190aaaa-visitor", sessionId: "0190bbbb-session" } },
+      "price_1",
+    );
+    expect(p.metadata).toEqual({ sku: product.sku, ph_distinct_id: "0190aaaa-visitor", ph_session_id: "0190bbbb-session" });
+  });
+
+  it("adds nothing when there is no visitor", () => {
+    expect(checkoutParams({ product, maxQuantity: 10, ui: hosted }, "price_1").metadata).toEqual({ sku: product.sku });
+  });
+});

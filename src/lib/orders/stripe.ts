@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import type { Product } from "@/content/catalog";
+import { visitorMetadata, type VisitorIds } from "@/lib/analytics/events";
 import type { Result } from "../email";
 import type { SessionLineItem } from "./order";
 import type { StripeEvent } from "./webhook";
@@ -46,6 +47,9 @@ export type CheckoutRequest = {
   readonly product: Product;
   readonly maxQuantity: number;
   readonly ui: CheckoutUi;
+  // The browser that opened the checkout, when it is being recorded: lets the paid
+  // order be tied to the visit. Absent for the no-JavaScript form.
+  readonly visitor?: VisitorIds;
 };
 
 // What the browser needs next: a page to go to, or a secret to mount Elements with.
@@ -85,7 +89,7 @@ export const checkoutParams = (req: CheckoutRequest, priceId: string): Stripe.Ch
   wallet_options: { link: { display: "never" } },
   shipping_address_collection: { allowed_countries: ["US"] },
   automatic_tax: { enabled: true },
-  metadata: { sku: req.product.sku },
+  metadata: { sku: req.product.sku, ...visitorMetadata(req.visitor) },
   ...uiParams(req.ui),
 });
 

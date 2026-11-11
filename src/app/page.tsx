@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { PreorderLink } from "@/components/analytics/PreorderLink";
+import { SectionWatch } from "@/components/analytics/SectionWatch";
 import { WarmStripe } from "@/components/checkout/WarmStripe";
 import { Hero } from "@/components/Hero";
 import { StagePicture } from "@/components/product/StagePicture";
 import { PACK_PRICE_CENTS, TERMS } from "@/components/PreorderCta";
 import { CATALOG } from "@/content/catalog";
 import { LAB } from "@/content/lab";
+import { PRIVACY } from "@/content/privacy";
 import { PREORDER } from "@/content/preorder";
 import { AUDIENCE, INGREDIENTS, SITE, WHY } from "@/content/site";
 import { checkoutConfig } from "@/lib/checkout/config";
@@ -52,6 +55,7 @@ export default function Home() {
   return (
     <main className="page">
       {checkout.ok && <WarmStripe publishableKey={checkout.value.publishableKey} />}
+      <SectionWatch />
       {/* JSON can't close the script tag once "<" is escaped. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(STRUCTURED_DATA) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(PRODUCT_DATA) }} />
@@ -76,9 +80,9 @@ export default function Home() {
           <p className="showcase-facts">
             {PREORDER.cansPerPack} cans · {formatUsd(PACK_PRICE_CENTS)} · Ships {PREORDER.shipWindow}
           </p>
-          <Link href="/preorder/" className="preorder-button">
+          <PreorderLink from="the-can" className="preorder-button">
             {PREORDER.button} · {formatUsd(PACK_PRICE_CENTS)}
-          </Link>
+          </PreorderLink>
         </div>
       </section>
 
@@ -133,6 +137,10 @@ export default function Home() {
         <Link href={LAB.path} className="social">
           <span className="eyebrow">For brands</span>
           <span>{LAB.name} →</span>
+        </Link>
+        <Link href={PRIVACY.path} className="social">
+          <span className="eyebrow">The fine print</span>
+          <span>{PRIVACY.name} →</span>
         </Link>
       </footer>
     </main>

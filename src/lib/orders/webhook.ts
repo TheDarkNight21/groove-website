@@ -1,4 +1,5 @@
 import type { Product } from "@/content/catalog";
+import { orderPaidCapture, visitorFromMetadata, type ServerCapture } from "@/lib/analytics/events";
 import type { Result } from "../email";
 import { describeOrderError, orderFromSession, type SessionInput, type SessionLineItem } from "./order";
 import { storeErrorSummary, type OrderStore, type StoreError } from "./store";
@@ -16,7 +17,9 @@ export type WebhookDeps = {
 export type StripeEvent = { readonly id: string; readonly type: string; readonly data: { readonly object: unknown } };
 
 export type WebhookOutcome =
-  | { readonly kind: "recorded"; readonly sessionId: string }
+  // `paid` is the analytics event for this order, returned as data: the route sends
+  // it. Only a first recording carries one, so a retried webhook never counts twice.
+  | { readonly kind: "recorded"; readonly sessionId: string; readonly paid: ServerCapture }
   | { readonly kind: "duplicate"; readonly sessionId: string }
   | { readonly kind: "ignored"; readonly reason: string };
 
@@ -57,12 +60,9 @@ export async function handleWebhook(
 
   const saved = await deps.store.insert(order.value);
   if (!saved.ok) return { ok: false, error: { kind: "store", error: saved.error } };
-  return {
-    ok: true,
-    value: saved.value.inserted
-      ? { kind: "recorded", sessionId: session.id }
-      : { kind: "duplicate", sessionId: session.id },
-  };
+  if (!saved.value.inserted) return { ok: true, value: { kind: "duplicate", sessionId: session.id } };
+  const visitor = visitorFromMetadata((session as { readonly metadata?: unknown }).metadata);
+  return { ok: true, value: { kind: "recorded", sessionId: session.id, paid: orderPaidCapture(order.value, visitor) } };
 }
 
 // One log line per failure with no customer data: Stripe's own messages and our

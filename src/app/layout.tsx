@@ -45,7 +45,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         {children}
-        {/* Vercel Web Analytics: page views, referrers, devices. No cookies. */}
+        {/* Vercel Web Analytics: page views, referrers, devices. No cookies. Behaviour
+            analytics (PostHog) starts in src/instrumentation-client.ts. */}
         <Analytics />
       </body>
     </html>

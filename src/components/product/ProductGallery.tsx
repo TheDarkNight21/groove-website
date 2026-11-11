@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { StagePhoto } from "@/content/catalog";
+import { track as trackEvent } from "@/lib/analytics/client";
 import { StagePicture } from "./StagePicture";
 
 // The product photos as a carousel, the way Apple's product pages do it: one photo at
@@ -48,6 +49,15 @@ export function ProductGallery({ images, name }: { images: readonly StagePhoto[]
       cancelAnimationFrame(frame);
     };
   }, []);
+
+  // Every way of changing photo (swipe, arrow, dot, key) ends in `active` changing.
+  // The first photo is simply what the page opens on, so it isn't counted.
+  const counted = useRef(active);
+  useEffect(() => {
+    if (counted.current === active) return;
+    counted.current = active;
+    trackEvent({ kind: "gallery_slide_viewed", index: active });
+  }, [active]);
 
   const show = (i: number) => {
     const el = track.current;

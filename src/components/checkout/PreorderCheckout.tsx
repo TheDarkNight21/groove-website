@@ -10,8 +10,10 @@ import {
   useCheckoutElements,
   type StripeCheckoutElementsValue,
 } from "@stripe/react-stripe-js/checkout";
-import { useEffect, useMemo, useReducer, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState, type FormEvent } from "react";
 import { PREORDER, PREORDER_PROMISE } from "@/content/preorder";
+import { track, visitorIds } from "@/lib/analytics/client";
+import { failureCode, initialSteps, stepChange, type FieldChange, type PayMethod } from "@/lib/analytics/events";
 import { APPEARANCE, FONTS } from "@/lib/checkout/appearance";
 import { canStep, stepPacks, type Step } from "@/lib/checkout/quantity";
 import { fieldsReady, initialReveal, revealed, revealStep, type Part } from "@/lib/checkout/reveal";
@@ -42,7 +44,9 @@ async function requestSecret(sku: string): Promise<Result<string, string>> {
     const res = await fetch("/api/checkout/session/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sku }),
+      // The analytics ids of this visit, when it is being recorded, so the paid order
+      // can be tied to it. Absent otherwise.
+      body: JSON.stringify({ sku, visitor: visitorIds() }),
     });
     if (!res.ok) return { ok: false, error: `session request answered ${res.status}` };
     const body: unknown = await res.json();
@@ -72,12 +76,16 @@ export function PreorderCheckout({ publishableKey, sku }: { publishableKey: stri
     stripeFor(publishableKey).then(
       (stripe) => {
         if (!current) return;
-        if (!stripe) console.error("checkout: Stripe.js did not load");
+        if (!stripe) {
+          console.error("checkout: Stripe.js did not load");
+          track({ kind: "checkout_unavailable", reason: "stripe-js" });
+        }
         setOpening(stripe ? { kind: "ready", value: { stripe, clientSecret } } : { kind: "unavailable" });
       },
       (e: unknown) => {
         if (!current) return;
         console.error("checkout: Stripe.js did not load:", e instanceof Error ? e.message : String(e));
+        track({ kind: "checkout_unavailable", reason: "stripe-js" });
         setOpening({ kind: "unavailable" });
       },
     );
@@ -180,12 +188,27 @@ function CheckoutForm() {
     return () => clearTimeout(t);
   }, [allFields]);
 
+  // Analytics: the form the buyer can use appeared, or the session never opened.
+  // Each is said once, however often the component re-renders.
+  const shown = revealed(reveal);
+  const said = useRef({ opened: false, failed: false });
+  const sessionFailed = state.type === "error";
+  useEffect(() => {
+    if (shown && !said.current.opened) {
+      said.current.opened = true;
+      track({ kind: "checkout_opened" });
+    }
+    if (sessionFailed && !said.current.failed) {
+      said.current.failed = true;
+      track({ kind: "checkout_unavailable", reason: "session" });
+    }
+  }, [shown, sessionFailed]);
+
   if (state.type === "error" || fieldFailed) {
     if (state.type === "error") console.error("checkout:", state.error.message);
     return <CheckoutUnavailable />;
   }
 
-  const shown = revealed(reveal);
   return (
     <div className="checkout-stage" data-revealed={shown} aria-busy={!shown}>
       <Form
@@ -194,6 +217,7 @@ function CheckoutForm() {
         onReady={(part) => dispatch({ kind: "ready", part })}
         onFieldFailed={(part, why) => {
           console.error(`checkout: the ${part} field did not load:`, why);
+          track({ kind: "checkout_unavailable", reason: "field" });
           setFieldFailed(true);
         }}
       />
@@ -228,15 +252,26 @@ function Form({ checkout, hidden, onReady, onFieldFailed }: FormProps) {
   const [walletError, setWalletError] = useState<string>();
   const [payError, setPayError] = useState<string>();
   const [wallets, setWallets] = useState(false);
+  // Which field groups have been typed into and finished (see stepChange): Stripe
+  // reports every keystroke, analytics hears each step once.
+  const steps = useRef(initialSteps);
+  const fieldChanged = (change: FieldChange) => {
+    const [next, events] = stepChange(steps.current, change);
+    steps.current = next;
+    events.forEach(track);
+  };
+  const failed = (method: PayMethod, error: Parameters<typeof failureCode>[0]) => track({ kind: "pay_failed", method, code: failureCode(error) });
 
   const step = async (s: Step) => {
     const line = view?.line;
     if (!checkout || !line?.bounds || !canStep(line.packs, s, line.bounds)) return;
     setBusy("quantity");
     setQuantityError(undefined);
-    const r = await checkout.updateLineItemQuantity({ lineItem: line.id, quantity: stepPacks(line.packs, s, line.bounds) });
+    const packs = stepPacks(line.packs, s, line.bounds);
+    const r = await checkout.updateLineItemQuantity({ lineItem: line.id, quantity: packs });
     setBusy("idle");
     if (r.type === "error") setQuantityError(r.error.message || "That quantity didn’t take. Try again.");
+    else track({ kind: "packs_changed", packs });
   };
 
   const pay = async (e: FormEvent) => {
@@ -245,9 +280,13 @@ function Form({ checkout, hidden, onReady, onFieldFailed }: FormProps) {
     setBusy("paying");
     setPayError(undefined);
     // On success Stripe redirects to the thanks page; only failures come back here.
+    track({ kind: "pay_submitted", method: "card" });
     const r = await checkout.confirm();
     setBusy("idle");
-    if (r.type === "error") setPayError(r.error.message || "The payment didn’t go through. Nothing was charged.");
+    if (r.type === "error") {
+      setPayError(r.error.message || "The payment didn’t go through. Nothing was charged.");
+      failed("card", r.error);
+    }
   };
 
   const line = view?.line;
@@ -313,6 +352,9 @@ function Form({ checkout, hidden, onReady, onFieldFailed }: FormProps) {
           }}
           onReady={({ availablePaymentMethods }) => {
             setWallets(availablePaymentMethods !== undefined);
+            if (availablePaymentMethods) {
+              track({ kind: "wallets_offered", applePay: availablePaymentMethods.applePay, googlePay: availablePaymentMethods.googlePay });
+            }
             onReady("express");
           }}
           // No wallets is not a failure: the card form still takes the order.
@@ -320,11 +362,16 @@ function Form({ checkout, hidden, onReady, onFieldFailed }: FormProps) {
             console.error("checkout: express checkout did not load:", e.error.message);
             onReady("express");
           }}
+          onCancel={() => track({ kind: "wallet_cancelled" })}
           onConfirm={async (event) => {
             if (!checkout) return;
             setWalletError(undefined);
+            track({ kind: "pay_submitted", method: "wallet" });
             const r = await checkout.confirm({ expressCheckoutConfirmEvent: event });
-            if (r.type === "error") setWalletError(r.error.message || "The payment didn’t go through. Nothing was charged.");
+            if (r.type === "error") {
+              setWalletError(r.error.message || "The payment didn’t go through. Nothing was charged.");
+              failed("wallet", r.error);
+            }
           }}
         />
         {walletError && (
@@ -336,9 +383,22 @@ function Form({ checkout, hidden, onReady, onFieldFailed }: FormProps) {
       </section>
 
       <fieldset className="checkout-fields" disabled={busy === "paying"}>
-        <ContactDetailsElement onReady={() => onReady("contact")} onLoadError={loadFailed("contact")} />
-        <ShippingAddressElement onReady={() => onReady("address")} onLoadError={loadFailed("address")} />
-        <PaymentElement options={{ layout: "tabs" }} onReady={() => onReady("payment")} onLoadError={loadFailed("payment")} />
+        <ContactDetailsElement
+          onReady={() => onReady("contact")}
+          onLoadError={loadFailed("contact")}
+          onChange={(e) => fieldChanged({ step: "contact", empty: e.empty, complete: e.complete })}
+        />
+        <ShippingAddressElement
+          onReady={() => onReady("address")}
+          onLoadError={loadFailed("address")}
+          onChange={(e) => fieldChanged({ step: "shipping", empty: e.empty, complete: e.complete })}
+        />
+        <PaymentElement
+          options={{ layout: "tabs" }}
+          onReady={() => onReady("payment")}
+          onLoadError={loadFailed("payment")}
+          onChange={(e) => fieldChanged({ step: "payment", empty: e.empty, complete: e.complete })}
+        />
       </fieldset>
 
       <button type="submit" className="preorder-button checkout-pay" disabled={!view || busy !== "idle"}>
