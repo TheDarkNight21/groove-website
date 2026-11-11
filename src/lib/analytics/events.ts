@@ -252,6 +252,20 @@ export const scrubUrl = (value: string): string => {
   return value.replace(pattern, `$1${SCRUBBED}`);
 };
 
-// Every string in an event's properties, scrubbed; everything else untouched.
-export const scrubProperties = <T extends Readonly<Record<string, unknown>>>(properties: T): T =>
-  Object.fromEntries(Object.entries(properties).map(([k, v]) => [k, typeof v === "string" ? scrubUrl(v) : v])) as T;
+// Whether an address carries one of those values. A page opened with one gets no
+// replay at all: a replay stores the page's own address in data we don't shape.
+export const carriesSecret = (search: string): boolean => {
+  const params = new URLSearchParams(search);
+  return SECRET_PARAMS.some((p) => params.has(p));
+};
+
+const scrubValue = (v: unknown): unknown => {
+  if (typeof v === "string") return scrubUrl(v);
+  if (Array.isArray(v)) return v.map(scrubValue);
+  if (v !== null && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, inner]) => [k, scrubValue(inner)]));
+  return v;
+};
+
+// Every string anywhere in an event's properties, scrubbed, however deeply nested;
+// everything else untouched.
+export const scrubProperties = <T extends Readonly<Record<string, unknown>>>(properties: T): T => scrubValue(properties) as T;

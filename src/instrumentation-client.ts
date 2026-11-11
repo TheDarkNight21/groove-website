@@ -1,6 +1,6 @@
 import posthog from "posthog-js";
 import { INGEST_PATH, analyticsConfig } from "@/lib/analytics/config";
-import { isPrivatePath, optChoice, scrubProperties } from "@/lib/analytics/events";
+import { carriesSecret, isPrivatePath, optChoice, scrubProperties } from "@/lib/analytics/events";
 
 // Behaviour analytics (PostHog), started before the page becomes interactive.
 // Records page views and leaves (time on page, scroll depth), the events in
@@ -25,6 +25,9 @@ if (config && !isPrivatePath(window.location.pathname)) {
       // A profile for every visitor, so people who ordered can be compared with people who didn't.
       person_profiles: "always",
       session_recording: { maskAllInputs: true },
+      // /thanks arrives with the order's Stripe session id in its address. A replay keeps
+      // the address of the page it records, so that page load gets no replay.
+      disable_session_recording: carriesSecret(window.location.search),
       // Last gate before anything is sent: nothing from the admin (should a visit ever
       // reach it without a fresh page load), and no order-opening ids in any URL.
       before_send: (event) => {

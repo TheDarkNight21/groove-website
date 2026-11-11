@@ -6,6 +6,7 @@ import {
   HOME_SECTIONS,
   MIN_SPIN_DEG,
   failureCode,
+  carriesSecret,
   initialSteps,
   isPrivatePath,
   scrubProperties,
@@ -364,5 +365,37 @@ describe("what never leaves the site", () => {
       packs: 2,
       flags: ["a"],
     });
+  });
+});
+
+describe("nested values and replays", () => {
+  it("scrubs a session id at any depth: in arrays, in objects, in both", () => {
+    const id = "cs_live_a1B2c3d4";
+    const url = `https://x.test/thanks/?session_id=${id}`;
+    const scrubbed = scrubProperties({ a: url, list: [url, { href: url, n: 1 }], deep: { deeper: { urls: [[url]] } }, ok: true, none: null });
+    expect(JSON.stringify(scrubbed)).not.toContain(id);
+    expect(scrubbed).toMatchObject({ list: [expect.any(String), { n: 1 }], ok: true, none: null });
+  });
+
+  it("whatever the shape, no session id survives and the shape is kept", () => {
+    const id = "cs_test_Zz9Yy8Xx7";
+    const leaf = fc.oneof(fc.constant(`/thanks/?session_id=${id}`), fc.integer(), fc.boolean(), fc.constant(null), fc.constantFrom("plain", "/preorder/"));
+    const tree = fc.letrec((tie) => ({
+      node: fc.oneof({ depthSize: "small" }, leaf, fc.array(tie("node"), { maxLength: 4 }), fc.dictionary(fc.constantFrom("a", "b", "c"), tie("node"), { maxKeys: 3 })),
+    })).node;
+    fc.assert(
+      fc.property(fc.dictionary(fc.constantFrom("x", "y", "z"), tree), (props) => {
+        const out = scrubProperties(props);
+        expect(JSON.stringify(out)).not.toContain(id);
+        expect(JSON.stringify(out).replaceAll("session_id=removed", `session_id=${id}`)).toBe(JSON.stringify(props));
+      }),
+    );
+  });
+
+  it("a page opened with a session id in its address is one that gets no replay", () => {
+    expect(carriesSecret("?session_id=cs_test_abc")).toBe(true);
+    expect(carriesSecret("?utm_source=ig&session_id=cs_live_x")).toBe(true);
+    expect(carriesSecret("?sku=miami-12pk")).toBe(false);
+    expect(carriesSecret("")).toBe(false);
   });
 });
