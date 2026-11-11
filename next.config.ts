@@ -4,7 +4,7 @@ import { INGEST_PATH, analyticsConfig } from "./src/lib/analytics/config";
 // Analytics requests go to our own domain and are forwarded to PostHog, so they are
 // first-party. posthog-js already asks for its endpoints with a trailing slash, which
 // is what this site serves; its script files end in an extension and keep none.
-const analytics = analyticsConfig({ key: process.env.NEXT_PUBLIC_POSTHOG_KEY, host: process.env.NEXT_PUBLIC_POSTHOG_HOST });
+const analytics = analyticsConfig({ key: process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN, host: process.env.NEXT_PUBLIC_POSTHOG_HOST });
 
 // Served by Vercel. Pages still prerender as static HTML; the route handlers under
 // app/api (checkout, the Stripe webhook, the admin) run as functions.

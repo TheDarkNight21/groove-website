@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   // Tell analytics about a newly recorded order. The order is already saved: a failure
   // here is logged and Stripe still hears 200, so analytics can never cost an order.
   if (result.ok && result.value.kind === "recorded") {
-    const analytics = analyticsConfig({ key: process.env.NEXT_PUBLIC_POSTHOG_KEY, host: process.env.NEXT_PUBLIC_POSTHOG_HOST });
+    const analytics = analyticsConfig({ key: process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN, host: process.env.NEXT_PUBLIC_POSTHOG_HOST });
     if (analytics) {
       const sent = await captureSender(analytics)(result.value.paid, new Date());
       if (!sent.ok) console.error("webhook: order_paid not recorded in analytics:", captureErrorSummary(sent.error));

@@ -10,7 +10,7 @@ import { carriesSecret, isPrivatePath, optChoice, scrubProperties } from "@/lib/
 // (Its pages also carry PostHog's ph-no-capture class, which blanks them in a replay.)
 // The /privacy page says all of this in plain words; keep the two in step.
 const config = analyticsConfig({
-  key: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  key: process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
   host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 });
 
