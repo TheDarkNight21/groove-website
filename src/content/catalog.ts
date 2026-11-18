@@ -81,12 +81,12 @@ export type Product = {
   // The photos on /preorder, in order: the pack (the homepage's photo), then the can
   // whole, closer, closest. The box joined on 2026-11-10.
   readonly gallery: readonly [StagePhoto, ...StagePhoto[]];
-  // The flavor's color: the orange of the record's label as it reads in the stage
-  // photos beside it (#B26C41, sampled from can.png; the printed ink is PANTONE 1565 C,
-  // #FFA06A on screens, darkened by the studio light). Used once on a page: the city in
-  // the product's name, on the homepage and on /preorder, as MIAMI is the orange word on
-  // the can. It has to read on white at heading size (a test holds it to 3:1; the ink
-  // itself is 2:1, so it is never text). Buttons stay black.
+  // The flavor's color: the ink printed on the can and the box (Miami: PANTONE 1565 C,
+  // #FFA06A on screens, the same orange as the record in the Instagram carousels). The
+  // stage photos show it darker (#B26C41) because of the studio light; the page uses the
+  // ink itself, Faris's choice on 2026-11-18. Used once on a page: the city in the
+  // product's name, on the homepage and on /preorder, as MIAMI is the orange word on the
+  // can. It is 2:1 on white, so it is only ever set at heading size. Buttons stay black.
   readonly accent: string;
 };
 
@@ -134,7 +134,7 @@ export const CATALOG: readonly Product[] = [
         "For the ones who lose track of time.",
       ),
     ],
-    accent: "#b26c41",
+    accent: "#ffa06a",
   },
 ];
 

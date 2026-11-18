@@ -13,7 +13,7 @@ Orange belongs to the flavour's name and nothing else. Never the button, never t
 
 | Idea | Verdict | Why |
 |---|---|---|
-| Orange somewhere under the hero | Changed | "Somewhere" isn't a design; the name is the precise place. The 12px flavour line stays black: the orange is 4.1:1 on white, too light for small text. |
+| Orange somewhere under the hero | Changed | "Somewhere" isn't a design; the name is the precise place. The 12px flavour line stays black: orange is too light for small text. |
 | The name in orange | Kept, one word | On the can MIAMI is the orange word and "The Miami Groove" is printed black. The site echoes the package. Boston will be blueberry, Detroit apple. |
 | Orange Pre-order button on hover | Cut | Phones have no hover and most buyers arrive on phones. The button is the action and the name is the flavour; a hue on the button makes every new flavour change the checkout. |
 
@@ -26,12 +26,20 @@ Each cut that reversed his request was put to him; he took all three.
 3. The orange dot beside "Peach pineapple" on /preorder is removed. This overturns the earlier
    rule that the dot was the flavour's one touch of colour.
 
+## Which orange (Faris, later the same day)
+
+Steve chose `#B26C41`, the label as it reads in the stage photos, because the printed ink is
+only 2:1 on white. Faris saw it on the page and overruled him: "too dark, we need the brighter
+one", the orange of the Instagram carousels. That is the ink itself, PANTONE 1565 C, `#FFA06A`
+(`brands/groove.yaml` in video-studio, from groove-can). The page now uses it. The 3:1 contrast
+test written for Steve's rule is removed with it.
+
 ## The rule from here
 
 - The flavour's colour appears once on a page: the city in the product's name.
-- The colour is the catalog entry's `accent`, the label as it reads in the photos (`#B26C41`
-  for Miami). The printed ink (PANTONE 1565 C, `#FFA06A`) is 2:1 on white and is never text.
-- Every accent must reach 3:1 on white; `src/content/__tests__/flavor-name.test.ts` holds it there.
+- The colour is the catalog entry's `accent`: the flavour's printed ink (`#FFA06A` for Miami,
+  PANTONE 1565 C), the same value the carousels use.
+- The ink is 2:1 on white, so it is set only at heading size, never on small text.
 - The hero stays black and white. It is Groove, not one flavour.
 
 ## Still open
