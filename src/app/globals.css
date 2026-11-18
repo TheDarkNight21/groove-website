@@ -7,7 +7,8 @@
   --vinyl: #0b0b0b;
   --muted: rgb(0 0 0 / 0.55);
   --hairline: rgb(0 0 0 / 0.12);
-  /* Errors only: the one color on the site, used where something went wrong. */
+  /* Errors only: used where something went wrong. The one other color is the flavor's
+     own, on the city in the product's name (the catalog's accent, set inline). */
   --danger: #c8102e;
   /* The can is near-white (#f0f0f0); it stands on this quiet grey, as in the can viewer. */
   --stage: #f3f3f3;
@@ -1095,16 +1096,6 @@ body {
     width: 100%;
     max-width: calc((100svh - 7rem) * 0.8 + 2 * var(--lane));
   }
-}
-
-/* The flavor's one touch of color. */
-.flavor-marker {
-  display: inline-block;
-  width: 0.625rem;
-  height: 0.625rem;
-  margin-right: 0.5rem;
-  border-radius: 50%;
-  vertical-align: 0.05em;
 }
 
 .checkout {

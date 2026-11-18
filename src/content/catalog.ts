@@ -68,6 +68,8 @@ const MIAMI_CAN = stagePhoto(
 export type Product = {
   readonly sku: string;
   readonly name: string;
+  // The city the flavor is named for: the one word of the name set in the flavor's color.
+  readonly city: string;
   // What it tastes like, as printed under the name.
   readonly flavor: string;
   readonly lookupKey: string;
@@ -81,15 +83,29 @@ export type Product = {
   readonly gallery: readonly [StagePhoto, ...StagePhoto[]];
   // The flavor's color: the orange of the record's label as it reads in the stage
   // photos beside it (#B26C41, sampled from can.png; the printed ink is PANTONE 1565 C,
-  // #FFA06A on screens, darkened by the studio light). Used once, as the small marker
-  // by the flavor name on /preorder; buttons stay black.
+  // #FFA06A on screens, darkened by the studio light). Used once on a page: the city in
+  // the product's name, on the homepage and on /preorder, as MIAMI is the orange word on
+  // the can. It has to read on white at heading size (a test holds it to 3:1; the ink
+  // itself is 2:1, so it is never text). Buttons stay black.
   readonly accent: string;
+};
+
+// The name split round its city, so the city can take the flavor's color. Undefined when
+// the name doesn't contain the city.
+export const nameParts = (
+  product: Pick<Product, "name" | "city">,
+): { readonly before: string; readonly city: string; readonly after: string } | undefined => {
+  const at = product.city ? product.name.indexOf(product.city) : -1;
+  return at < 0
+    ? undefined
+    : { before: product.name.slice(0, at), city: product.city, after: product.name.slice(at + product.city.length) };
 };
 
 export const CATALOG: readonly Product[] = [
   {
     sku: "miami-12pk",
     name: "The Miami Groove",
+    city: "Miami",
     flavor: "Peach pineapple",
     lookupKey: "miami-groove-12pk",
     weightOz: 170,

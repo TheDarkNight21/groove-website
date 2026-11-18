@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { preconnect, preload } from "react-dom";
 import { CheckoutUnavailable } from "@/components/checkout/CheckoutUnavailable";
 import { PreorderCheckout } from "@/components/checkout/PreorderCheckout";
+import { FlavorName } from "@/components/product/FlavorName";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { CATALOG } from "@/content/catalog";
 import { PREORDER, PREORDER_PROMISE } from "@/content/preorder";
@@ -47,11 +48,10 @@ export default async function Preorder({ searchParams }: PageProps<"/preorder">)
         <div className="buy">
           <ProductGallery images={product.gallery} name={product.name} />
           <div className="buy-panel">
-            <h1 className="buy-name">{product.name}</h1>
-            <p className="buy-flavor">
-              <span className="flavor-marker" style={{ backgroundColor: product.accent }} aria-hidden="true" />
-              {product.flavor}
-            </p>
+            <h1 className="buy-name">
+              <FlavorName product={product} />
+            </h1>
+            <p className="buy-flavor">{product.flavor}</p>
             <p className="buy-price">
               {PREORDER.cansPerPack} cans · {formatUsd(perCanCents)} a can
             </p>

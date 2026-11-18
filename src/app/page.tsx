@@ -3,6 +3,7 @@ import { PreorderLink } from "@/components/analytics/PreorderLink";
 import { SectionWatch } from "@/components/analytics/SectionWatch";
 import { WarmStripe } from "@/components/checkout/WarmStripe";
 import { Hero } from "@/components/Hero";
+import { FlavorName } from "@/components/product/FlavorName";
 import { StagePicture } from "@/components/product/StagePicture";
 import { PACK_PRICE_CENTS, TERMS } from "@/components/PreorderCta";
 import { CATALOG } from "@/content/catalog";
@@ -75,7 +76,7 @@ export default function Home() {
         <div className="showcase-copy">
           <p className="eyebrow">{CATALOG[0].flavor}</p>
           <h2 id="the-can" className="showcase-name">
-            {CATALOG[0].name}
+            <FlavorName product={CATALOG[0]} />
           </h2>
           <p className="showcase-facts">
             {PREORDER.cansPerPack} cans · {formatUsd(PACK_PRICE_CENTS)} · Ships {PREORDER.shipWindow}
