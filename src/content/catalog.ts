@@ -19,14 +19,17 @@ export type ProductImage = {
   readonly height: number;
 };
 
-// A photo of the product on the grey studio stage (Blender Cycles). The can photos are
-// the same shoot as the can section's anchors (scripts/render-anchors.mts and
-// PRODUCT_SHOTS on the scroll-hero branch); the pack photo is groove-pack's `pack` shot
-// (src/render/shots.ts, box-renders e04b58a). Each 4:5 source render is committed in assets/products/ and
-// `npm run stage-photos` scales and encodes it into public/products/<name>.webp/.jpg.
+// A photo on the homepage, the /preorder gallery or the thanks page. Two kinds share the
+// shape: the 12-pack on its studio stage (Blender Cycles, groove-pack's `pack-warm` shot:
+// the pack on the warm paper of the studio can photo), and the lifestyle pictures of the
+// can (generated images, 2026-11-24, of the Miami can with MIAMI round the top and the
+// anodised tab; cropped to 4:5 and nothing else). They picture a can that is not yet
+// made, like the renders, so no caption calls one a photograph of the product. Each 4:5
+// source is committed in assets/products/ and `npm run stage-photos` scales and encodes
+// it into public/products/<name>.webp/.jpg.
 export type StagePhoto = {
   readonly name: string;
-  // The render it is made from, in assets/products/.
+  // The picture it is made from, in assets/products/.
   readonly source: string;
   readonly webp: string;
   readonly jpg: string;
@@ -50,19 +53,20 @@ const stagePhoto = (name: string, source: string, alt: string, caption: string):
   ...STAGE_PHOTO_SIZE,
 });
 
+// The can in a hand, against a sunlit wall: its size, and the whole label, at a glance.
+const MIAMI_HAND = stagePhoto(
+  "miami-hand",
+  "lifestyle-hand.png",
+  "A hand holding the Miami Groove can against a sunlit cream wall: a white can with MIAMI round the top, a black record with a peach label, and a peach tab.",
+  "The Miami Groove. Peach pineapple.",
+);
+
 // The 12-pack's box at three-quarter with a can standing beside it: what a pre-order buys.
 const MIAMI_PACK = stagePhoto(
   "miami-pack-stage",
-  "pack.png",
+  "pack-warm.png",
   "The Miami Groove 12-pack: a white box with a black record on its side, and a white can beside it with MIAMI round the top and a peach tab.",
   "Twelve cans to a box.",
-);
-
-const MIAMI_CAN = stagePhoto(
-  "miami-can-stage",
-  "can.png",
-  "The Miami Groove can: matte white, with a black record and a peach label. Peach pineapple sparkling energy drink.",
-  "The Miami Groove. Peach pineapple.",
 );
 
 export type Product = {
@@ -75,12 +79,17 @@ export type Product = {
   readonly lookupKey: string;
   readonly weightOz: number;
   readonly image: ProductImage;
-  // The one photo on the homepage, under the hero, beside the pre-order button: the
-  // 12-pack, box and can (2026-11-10). The line beside it says what's in the box.
+  // The one photo on the homepage, under the hero, beside the pre-order button: the can
+  // in a hand (2026-11-26; the 12-pack before). The line beside it on the homepage says what's in the box.
   readonly showcase: StagePhoto;
-  // The photos on /preorder, in order: the pack (the homepage's photo), then the can
-  // whole, closer, closest. The box joined on 2026-11-10.
+  // The photos on /preorder, in order: the can alone (front on, then from above), the
+  // 12-pack a pre-order buys, the can at work and outdoors, and last the line on the back
+  // of the can. The homepage's photo is not among them: the buyer has just seen it
+  // (Faris, 2026-11-26).
   readonly gallery: readonly [StagePhoto, ...StagePhoto[]];
+  // The photo beside the order on the thanks page: one the buyer has not seen yet, so
+  // it is never one of the gallery's (2026-11-26). Miami: the can by a pool.
+  readonly thanks: StagePhoto;
   // The flavor's color: the ink printed on the can and the box (Miami: PANTONE 1565 C,
   // #FFA06A on screens, the same orange as the record in the Instagram carousels). The
   // stage photos show it darker (#B26C41) because of the studio light; the page uses the
@@ -117,16 +126,34 @@ export const CATALOG: readonly Product[] = [
       width: 900,
       height: 2501,
     },
-    showcase: MIAMI_PACK,
+    showcase: MIAMI_HAND,
     gallery: [
-      MIAMI_PACK,
-      MIAMI_CAN,
       stagePhoto(
-        "miami-record-stage",
-        "can-record.png",
-        "Close up of the can's record: black grooves with peach rings, and “Energy for the flow state” around the label.",
+        "miami-studio",
+        "lifestyle-studio.png",
+        "The Miami Groove can standing on a warm grey studio paper, front on: MIAMI, the record, groove, sparkling energy drink, peach pineapple, 12 fl oz, 120 mg caffeine.",
+        "12 fl oz. 120 mg caffeine.",
+      ),
+      stagePhoto(
+        "miami-studio-above",
+        "lifestyle-studio-above.png",
+        "The Miami Groove can on warm grey studio paper, seen from above and to one side: the peach tab on the lid, MIAMI round the top, and the black record.",
+        "A peach tab on top.",
+      ),
+      MIAMI_PACK,
+      stagePhoto(
+        "miami-desk",
+        "lifestyle-desk.png",
+        "The Miami Groove can on a marble counter beside a laptop, with hands typing behind it.",
         "Energy for the flow state.",
       ),
+      stagePhoto(
+        "miami-tennis",
+        "lifestyle-tennis.png",
+        "A hand resting the Miami Groove can against a tennis net, the green court behind it in low sun.",
+        "Wherever the afternoon goes.",
+      ),
+      // The line printed on the back of the can, close (a Blender render, like the pack).
       stagePhoto(
         "miami-line-stage",
         "can-line.png",
@@ -134,9 +161,18 @@ export const CATALOG: readonly Product[] = [
         "For the ones who lose track of time.",
       ),
     ],
+    thanks: stagePhoto(
+      "miami-pool",
+      "lifestyle-pool.png",
+      "The Miami Groove can standing on the pale stone edge of a swimming pool, bright blue water behind it in full sun.",
+      "Order received.",
+    ),
     accent: "#ffa06a",
   },
 ];
+
+// Every stage photo a product uses, on any page: what gets encoded and checked.
+export const stagePhotosOf = (p: Product): readonly StagePhoto[] => [p.showcase, ...p.gallery, p.thanks];
 
 export const productBySku = (catalog: readonly Product[], sku: string): Product | undefined =>
   catalog.find((p) => p.sku === sku);

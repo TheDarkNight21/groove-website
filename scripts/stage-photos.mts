@@ -9,7 +9,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { CATALOG, STAGE_PHOTO_SIZE, type StagePhoto } from "../src/content/catalog.ts";
+import { CATALOG, STAGE_PHOTO_SIZE, stagePhotosOf, type StagePhoto } from "../src/content/catalog.ts";
 
 const SRC_DIR = resolve("assets/products");
 const OUT_DIR = resolve("public/products");
@@ -49,7 +49,7 @@ function main() {
   mkdirSync(OUT_DIR, { recursive: true });
   const tmp = mkdtempSync(join(tmpdir(), "groove-stage-"));
   try {
-    for (const e of encodes(CATALOG.flatMap((p) => [p.showcase, ...p.gallery]), SRC_DIR, OUT_DIR, tmp)) {
+    for (const e of encodes(CATALOG.flatMap(stagePhotosOf), SRC_DIR, OUT_DIR, tmp)) {
       if (!existsSync(e.source)) throw new Error(`no source render at ${e.source}`);
       execFileSync("ffmpeg", [...scaleArgs(e.source, e.png)], { stdio: "inherit" });
       execFileSync("cwebp", ["-quiet", "-q", String(WEBP_QUALITY), "-m", "6", "-sharp_yuv", e.png, "-o", e.webp], { stdio: "inherit" });

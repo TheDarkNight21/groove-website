@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CanImage } from "@/components/product/CanImage";
+import { StagePicture } from "@/components/product/StagePicture";
 import { CATALOG } from "@/content/catalog";
 import { PREORDER } from "@/content/preorder";
 import { SITE } from "@/content/site";
@@ -49,7 +49,7 @@ export default async function Thanks({ searchParams }: PageProps<"/thanks">) {
       </div>
       {order.ok ? (
         <div className="buy">
-          <CanImage image={order.value.lines[0].product.image} className="buy-can" eager />
+          <StagePicture photo={order.value.lines[0].product.thanks} className="buy-shot" eager />
           <section className="buy-panel">
             <h1 className="display">{thanks.title}</h1>
             <ul className="thanks-lines">
@@ -77,13 +77,18 @@ export default async function Thanks({ searchParams }: PageProps<"/thanks">) {
           </section>
         </div>
       ) : (
-        <section className="not-found">
-          <h1 className="display">{thanks.title}</h1>
-          <p className="lede">{thanks.lede}</p>
-          <Link href="/" className="not-found-link">
-            {thanks.back} →
-          </Link>
-        </section>
+        // The order couldn't be read back (no session id, or Stripe didn't answer): the
+        // same page without the lines only Stripe knows, with the same photo.
+        <div className="buy">
+          <StagePicture photo={CATALOG[0].thanks} className="buy-shot" eager />
+          <section className="buy-panel">
+            <h1 className="display">{thanks.title}</h1>
+            <p className="lede">{thanks.lede}</p>
+            <Link href="/" className="not-found-link">
+              {thanks.back} →
+            </Link>
+          </section>
+        </div>
       )}
     </main>
   );
